@@ -9,16 +9,31 @@ Created on Thu Jun 25 19:05:07 2020
 import functions as sk
 import pickle
 
-reset = True
+reset_countries = True
+reset_skijumpers = True
 
-if reset:
-    countries = sk.generate_countries(n=100)
-    skijumpers = sk.generate_skijumpers(countries, n=50)
+if reset_countries:
+    countries = sk.generate_countries(n=25)
     hills = sk.extract_hills(countries)
     pickle.dump(countries, open("countries.pkl", "wb"))
-    pickle.dump(skijumpers, open("skijumpers.pkl", "wb"))
     pickle.dump(hills, open("hills.pkl", "wb"))
 else:
     countries = pickle.load(open("countries.pkl", "rb"))
-    skijumpers = pickle.load(open("skijumpers.pkl", "rb"))
     hills = pickle.load(open("hills.pkl", "rb"))
+if reset_skijumpers:
+    skijumpers = sk.generate_skijumpers(countries, n=100)
+    pickle.dump(skijumpers, open("skijumpers.pkl", "wb"))
+else:
+    skijumpers = pickle.load(open("skijumpers.pkl", "rb"))
+    
+countries_df = sk.obj_list_to_df(countries)
+countries_df["skijumpers"] = [
+    [skijumper.name for skijumper in skijumpers.values()
+     if skijumper.country_of_origin == country]
+    for country in countries_df.index]
+skijumpers_df = sk.obj_list_to_df(skijumpers)
+hills_df = sk.obj_list_to_df(hills)
+hills_df["skijumpers"] = [
+    [skijumper.name for skijumper in skijumpers.values()
+     if skijumper.home_hill == hill]
+    for hill in hills_df.index]
