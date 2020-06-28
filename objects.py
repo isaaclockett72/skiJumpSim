@@ -9,38 +9,11 @@ Created on Tue Jun 23 22:03:03 2020
 import locale
 import numpy as np
 import random
+import string
 import country_naming as cn
 from name_generator import generate_word
 
 locale.setlocale(locale.LC_ALL, '')
-
-
-class Hill():
-    """
-    A hill is an object that can be jumped on.
-
-    A hill is in a country, and is the home hill of ski jumpers
-    """
-
-    def __init__(self, country_name):
-
-        self.country = country_name
-        self.height = random.gauss(130, 6)
-        self.calculation_line = self.height * 0.9
-        self.hill_record = self.calculation_line
-        self.max_crowd_size = random.randint(0, 100000)
-        self.name = generate_word(random.randint(2, 3)).title()
-
-    def __repr__(self):
-        """Use name for object representation."""
-        return self.name
-
-    def print_stats(self):
-        """Print stats for the hill."""
-        print(f"""
-Hill Name:      {self.name}
-Height:         {self.height}m
-""")
 
 
 class Country():
@@ -65,7 +38,7 @@ class Country():
             self.name += generate_word(random.randint(1, 2)).title()
             self.name += random.choice(cn.country_suffixes)
         self.full_name += self.name
-        self.population = random.randint(1, 2500000000)
+        self.population = random.randint(1, 25000000)
         self.hill_count = random.choices(range(0, 10), range(10, 0, -1))[0]
         self.hills = [Hill(self.name) for x in range(self.hill_count)]
 
@@ -76,6 +49,9 @@ class Country():
     def introduce_country(self):
         """Announce a country upon arrival."""
         print(f"""
+{"-" * 32}
+Welcome to {self.name}
+{"-" * 32}
 Our tournament takes place in: {self.full_name}.
 
 This country has a population of {self.population:,}.
@@ -84,6 +60,56 @@ There are {self.hill_count} hills in total:
 
 Our first hill will be {self.hills[0].name}
 """)
+
+
+class Hill():
+    """
+    A hill is an object that can be jumped on.
+
+    A hill is in a country, and is the home hill of ski jumpers
+    """
+
+    def __init__(self, country_name):
+
+        self.country = country_name
+        self.height = round(random.gauss(130, 6), 2)
+        self.calculation_line = round(self.height * 0.9)
+        self.hill_record = self.calculation_line
+        self.max_crowd_size = random.randint(0, 100000)
+        self.name = self.generate_name()
+
+    def __repr__(self):
+        """Use name for object representation."""
+        return self.name
+    
+    def generate_name(self):
+        starting_strings = [self.country[:2], ""]
+        starting_weights = [2, 3]
+        starting_string = random.choices(starting_strings, starting_weights)[0]
+        return generate_word(random.randint(2, 3),
+                             starting_string=starting_string).title()
+
+    def print_stats(self):
+        """Print stats for the hill."""
+        print(f"""
+Hill Name:      {self.name}
+Height:         {self.height}m
+""")
+
+    def calculate_attendance(self, skijumpers):
+        home_country_count = 0
+        home_hill_count = 0
+        for skijumper in skijumpers:
+            if skijumper.country_of_origin == self.country:
+                home_country_count += 1
+            if skijumper.home_hill == self.name:
+                home_hill_count += 1
+        base = (home_country_count * 2 +
+                home_hill_count * 3) * self.max_crowd_size/100
+        
+        return round(min(
+            random.gauss(self.max_crowd_size/2 + base, self.max_crowd_size/6),
+            self.max_crowd_size))
 
 
 class SkiJumper():
@@ -146,3 +172,5 @@ Overall Score: {self.overall_score}
             self.popularity, self.speed, self.balance, self.stamina,
             self.risk_taking, self.relationship_with_father,
             self.form]), 4)
+        
+    
