@@ -15,6 +15,10 @@ from name_generator import generate_word
 locale.setlocale(locale.LC_ALL, '')
 
 class Hill():
+    """
+    A hill is an object that can be jumped on.
+    A hill is in a country, and is the home hill of ski jumpers
+    """
     def __init__(self, country_name):
         self.country = country_name
         self.height = random.gauss(130,6)
@@ -29,13 +33,18 @@ Height:         {self.height}m
         
     def __repr__(self):
         return self.name
-        
+
 
 class Country():
+    """
+    A country is a place where hills live.
+    Ski jumpers come from countries.
+    """
     def __init__(self):
         self.name = ""
+        self.full_name = ""
         if random.random() > 0.1:
-            self.name += random.choice(cn.country_titles) + " of "
+            self.full_name += random.choice(cn.country_titles) + " of "
         if random.random() > 0.8:
             self.name += random.choice(cn.country_interjections) + " "
         if random.random() > 0.5:
@@ -44,6 +53,7 @@ class Country():
         else:
             self.name += generate_word(random.randint(1,2)).title()
             self.name += random.choice(cn.country_suffixes)
+        self.full_name += self.name
         self.population = random.randint(1, 2500000000)
         self.hill_count = random.choices(range(0,10), range(10, 0, -1))[0]
         self.hills = [Hill(self.name) for x in range(self.hill_count)]
@@ -64,13 +74,18 @@ List of hills:  {[x.name for x in self.hills]}
     
     
 class SkiJumper():
+    """
+    A ski jumper is a person who participates in ski jumps.
+    A ski jumper comes from a country and may have a home hill.
+    """
     def __init__(self, countries):
-        self.country_of_origin = random.choice(list(countries.values()))
+        country = random.choice(list(countries.values()))
+        self.country_of_origin = country.name
         self.name = (
             generate_word(random.randint(1,2)).title() + " " +
             generate_word(random.randint(1,2)).title())
         try:
-            self.home_hill = random.choice(self.country_of_origin.hills)
+            self.home_hill = random.choice(country.hills).name
         except IndexError:
             self.home_hill = None
         self.height = random.gauss(178, 10)
@@ -108,3 +123,4 @@ Overall Score: {self.overall_score}
     
     def __repr__(self):
         return self.name
+        
