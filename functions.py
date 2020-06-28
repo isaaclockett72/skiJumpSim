@@ -8,19 +8,23 @@ Created on Sat Jun 27 15:18:56 2020
 
 import pandas as pd
 from pandas import DataFrame
-from objects import Hill, Country, SkiJumper
+import random
+from objects import Country, SkiJumper
+
 
 def generate_countries(n=10):
-    """Generate n countries"""
+    """Generate n countries."""
     countries_list = [Country() for x in range(n)]
     countries = {c.name: c for c in countries_list}
     return countries
 
+
 def generate_skijumpers(countries, n=50):
-    """Generate n ski jumpers, from the country list countries"""
+    """Generate n ski jumpers, from the country list countries."""
     skijumpers_list = [SkiJumper(countries) for x in range(n)]
     skijumpers = {sk.name: sk for sk in skijumpers_list}
     return skijumpers
+
 
 def extract_hills(countries):
     """Extract the hills that were generated as part of the country gen."""
@@ -29,6 +33,7 @@ def extract_hills(countries):
         hills_list.extend(country.hills)
     hills = {h.name: h for h in hills_list}
     return hills
+
 
 def obj_list_to_df(obj_list, index_col="name"):
     """Convert a list of objects to a df."""
@@ -41,3 +46,11 @@ def obj_list_to_df(obj_list, index_col="name"):
         except (TypeError, ValueError):
             pass
     return obj_df
+
+
+def select_country(countries):
+    """Select and announce the country selected for the tournament."""
+    host_countries = {k: v for k, v in countries.items() if v.hill_count > 0}
+    tournament_country = random.choice(list(host_countries.values()))
+    tournament_country.introduce_country()
+    return tournament_country
