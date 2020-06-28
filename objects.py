@@ -22,17 +22,19 @@ class Hill():
     def __init__(self, country_name):
         self.country = country_name
         self.height = random.gauss(130,6)
+        self.calculation_line = self.height * 0.9
+        self.hill_record = self.calculation_line
         self.max_crowd_size = random.randint(0, 100000)
         self.name = generate_word(random.randint(2,3)).title()
         
-    def __str__(self):
-        return f"""
-Hill Name:      {self.name}
-Height:         {self.height}m
-"""
-        
     def __repr__(self):
         return self.name
+        
+    def print_stats(self):
+        print(f"""
+Hill Name:      {self.name}
+Height:         {self.height}m
+""")
 
 
 class Country():
@@ -57,18 +59,18 @@ class Country():
         self.population = random.randint(1, 2500000000)
         self.hill_count = random.choices(range(0,10), range(10, 0, -1))[0]
         self.hills = [Hill(self.name) for x in range(self.hill_count)]
+
+    def __repr__(self):
+        return self.name
         
         
-    def __str__(self):
-        return f"""
+    def print_stats(self):
+        print(f"""
 Name:           {self.name}
 Population:     {self.population:,}
 Hill Count:     {self.hill_count}
 List of hills:  {[x.name for x in self.hills]}
-"""
-
-    def __repr__(self):
-        return self.name
+""")
 
 
     
@@ -96,16 +98,21 @@ class SkiJumper():
         self.stamina = random.randint(1,10)
         self.risk_taking = random.randint(1,10)
         self.relationship_with_father = random.randint(1,10)
+        self.form = random.gauss(5, 2)
         self.overall_score = round(np.mean([
             self.popularity, self.speed, self.balance, self.stamina,
-            self.risk_taking, self.relationship_with_father]), 4)
+            self.risk_taking, self.relationship_with_father,
+            self.form]), 4)
     
-    def __str__(self):
-        return f"""
+    def __repr__(self):
+        return self.name
+    
+    def print_stats(self):
+        print(f"""
 New Ski Jumper
 Name:                       {self.name}
-Country:                    {self.country_of_origin.name}
-Home Hill:                  {self.home_hill.name}
+Country:                    {self.country_of_origin}
+Home Hill:                  {self.home_hill}
 
 ------------- STATS -------------
 Height:                     {round(self.height, 2)}cm
@@ -119,8 +126,8 @@ Relationship With Father:   {self.relationship_with_father}/10
 
 --------- OVERALL SCORE ---------
 Overall Score: {self.overall_score}
-"""
-    
-    def __repr__(self):
-        return self.name
+""")
         
+    
+    def set_form(self):
+        self.form = random.gauss(5, 2)
