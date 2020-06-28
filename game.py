@@ -34,3 +34,7 @@ hills_df["skijumpers"] = [
 
 # PICK A COUNTRY
 host_country = sk.select_country(countries)
+host_hills = (h.name for h in hills.values() if h.country == host_country.name)
+
+current_hill = sk.go_to_next_hill(host_hills)
+sk.start_hill(hills[current_hill], skijumpers.values())
