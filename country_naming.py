@@ -8,6 +8,7 @@ Created on Sat Jun 27 15:32:40 2020
 
 
 country_prefixes = [
+    "Afr",
     "Alb",
     "Alg",
     "Afghan",
@@ -115,6 +116,13 @@ country_prefixes = [
     "Ser",
     "Sin",
     "Slo",
+    "Sol",
+    "Som",
+    "Spa",
+    "Sud",
+    "Sur",
+    "Swe",
+    "Swi",
     "Tai",
     ]
 
@@ -140,6 +148,7 @@ country_suffixes = [
     "burg",
     "car",
     "dan",
+    "den",
     "dia",
     "dor",
     "ea",
@@ -175,6 +184,7 @@ country_suffixes = [
     "land",
     "le",
     "li",
+    "lia",
     "ly",
     "man",
     "many",
@@ -255,6 +265,7 @@ country_interjections = [
     "Santa",
     "Santo",
     "South",
+    "Sri",
     "St.",
     "The",
     "United",
@@ -272,6 +283,7 @@ country_titles =     [
     "Democratic People's Republic",
     "Democratic Republic",
     "Desperate Peoples",
+    "Direct Democracy",
     "Emirate",
     "Enigmatic Republic",
     "Federal Democratic Republic",
@@ -290,15 +302,18 @@ country_titles =     [
     "Independent State",
     "Islamic Democratic",
     "Islamic Republic",
+    "Islamophobic Republic",
     "Jewish Republic",
     "Lonely Peoples",
     "Lost Peoples",
     "Kingdom",
     "Mediocracy",
-    "Monosyllaby"
+    "Monosyllaby",
     "Nation", 
+    "Necrocracy",
     "Oligarchy",
     "People's Republic",
+    "Plebocracy",
     "Plurinational State",
     "Principality",
     "Queendom",
@@ -306,6 +321,6 @@ country_titles =     [
     "Republic of the Union",
     "State",
     "Sultinate",
-    "Union"
+    "Union",
     "Wholly Athiest Republic"
     ]
