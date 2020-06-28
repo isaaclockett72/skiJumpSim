@@ -12,7 +12,7 @@ import pickle
 
 
 def create_world(reset_countries=True, reset_skijumpers=True):
-
+    """Create a universe for the ski jumping tournament to take place in"""
     if reset_countries:
         countries = sk.generate_countries(n=25)
         hills = sk.extract_hills(countries)
