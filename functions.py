@@ -12,6 +12,15 @@ import random
 from objects import Country, SkiJumper
 
 
+def extract_hills(countries):
+    """Extract the hills that were generated as part of the country gen."""
+    hills_list = []
+    for country in countries.values():
+        hills_list.extend(country.hills)
+    hills = {h.name: h for h in hills_list}
+    return hills
+
+
 def generate_countries(n=10):
     """Generate n countries."""
     countries_list = [Country() for x in range(n)]
@@ -26,13 +35,14 @@ def generate_skijumpers(countries, n=50):
     return skijumpers
 
 
-def extract_hills(countries):
-    """Extract the hills that were generated as part of the country gen."""
-    hills_list = []
-    for country in countries.values():
-        hills_list.extend(country.hills)
-    hills = {h.name: h for h in hills_list}
-    return hills
+def go_to_next_hill(host_hills):
+    """Move to the next hill in the tournament"""
+    try:
+        current_hill = host_hills.__next__()
+    except StopIteration:
+        print("Tournament complete!")    
+        current_hill = ""
+    return current_hill
 
 
 def obj_list_to_df(obj_list, index_col="name"):
@@ -54,3 +64,11 @@ def select_country(countries):
     tournament_country = random.choice(list(host_countries.values()))
     tournament_country.introduce_country()
     return tournament_country
+
+
+def start_hill(hill, skijumpers):
+    attendance = hill.calculate_attendance(skijumpers)
+    print(f"Attendance: {attendance:,} / {hill.max_crowd_size:,}")
+    if attendance == hill.max_crowd_size:
+        print("It's a sellout!")
+    pass
