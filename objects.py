@@ -102,7 +102,7 @@ Hill Name:          {self.name}
 Height:             {self.height}m
 Calculation Line:   {self.calculation_line}m
 Hill Record:        {self.hill_record}m
-Capacity:           {self.capacity}
+Capacity:           {self.capacity:,}
 """)
 
     def calculate_attendance(self, skijumpers):
@@ -140,14 +140,13 @@ class SkiJumper():
             self.home_hill = random.choice(country.hills).name
         except IndexError:
             self.home_hill = None
-        self.height = random.gauss(178, 10)
-        self.weight = random.gauss(64, 4)
+        self.height = round(random.gauss(178, 10), 2)
+        self.weight = round(random.gauss(64, 4), 2)
         self.popularity = random.randint(1, 10)
         self.speed = random.randint(1, 10)
         self.balance = random.randint(1, 10)
         self.style = random.randint(1, 10)
         self.consistency = random.randint(1, 10)
-        self.stamina = random.randint(1, 10)
         self.risk_taking = random.randint(1, 10)
         self.relationship_with_father = random.randint(1, 10)
         self.set_form()
@@ -183,41 +182,104 @@ class SkiJumper():
         if self.overall_score > 7:
             self.personality.append("Bookkeepers' Favourite")
 
-
     def print_stats(self):
         """Print out the stats for a ski jumper."""
         print(f"""
-New Ski Jumper
-Name:                       {self.name}
+{"-" * 32}
+{self.name}
+{"-" * 32}
+
 Country:                    {self.country_of_origin}
 Home Hill:                  {self.home_hill}
 
 ------------- STATS -------------
+
+Personality:                {",".join(self.personality)}
 Height:                     {round(self.height, 2)}cm
 Weight:                     {round(self.weight, 2)}kg
-Popularity:                 {self.popularity}/10
-Speed:                      {self.speed}/10
-Balance:                    {self.balance}/10
-Style:                      {self.style}/10
-Stamina:                    {self.stamina}/10
-Consistency:                {self.consistency}/10
-Risk Taker:                 {self.risk_taking}/10
-Relationship With Father:   {self.relationship_with_father}/10
+Popularity:                 {self.popularity} / 10
+Speed:                      {self.speed} / 10
+Balance:                    {self.balance} / 10
+Style:                      {self.style} / 10
+Consistency:                {self.consistency} / 10
+Risk Taker:                 {self.risk_taking} / 10
+Relationship With Father:   {self.relationship_with_father} / 10
+
 
 --------- OVERALL SCORE ---------
-Overall Score: {self.overall_score}
+
+Overall Score:              {self.overall_score}
 """)
 
     def set_form(self):
         """Pick the form for the ski jumper and reset score."""
         self.form = random.gauss(5, 2)
         self.overall_score = round(np.mean([
-            self.popularity, self.speed, self.balance, self.stamina,
-            self.consistency,
-            self.risk_taking, self.relationship_with_father,
+            self.popularity, self.speed, self.balance,
+            self.consistency, self.relationship_with_father,
             self.form]), 4)
-        
+
     def jump(self, hill):
+        """Make the skijumper jump on the selected hill."""
         base = hill.calculation_line
-        random_jump_distance = random.gauss(base, base/12)
-        return random_jump_distance
+
+        # HEIGHT BONUS
+        height_bonus = round(self.height / hill.height, 2)
+        base += height_bonus
+        print(f"""Height bonus: {height_bonus}""")
+
+        # WEIGHT BONUS
+        weight_bonus = round(self.height / self.weight, 2)
+        base += weight_bonus
+        print(f"""Weight bonus: {weight_bonus}\n""")
+
+        # POPULARITY IMPACT
+        if hill.name == self.home_hill:
+            hill_bonus = max((self.popularity-5), 0)
+            base += hill_bonus
+            print(f"Home hill popularity bonus: {hill_bonus}")
+        if hill.country == self.country_of_origin:
+            print(f"Popularity: {self.popularity}")
+            home_bonus = max(((self.popularity-5)/2), 0)
+            base += home_bonus
+            print(f"Home popularity bonus: {home_bonus}\n")
+        # JUMP SPEED SIMPLE
+        jump_bonus = round(random.randint(0, self.speed), 1)
+        jump_speed = round(hill.height/1.5 + jump_bonus, 1)
+        base += jump_bonus/2
+        print(f"Jump speed: {jump_speed}km/h")
+        print(f"Jump speed bonus: {jump_bonus/2}\n")
+
+        # BALANCE OMITTED UNTIL WIND GENERATED
+
+        # STYLE OMITTED UNTIL STYLE POINTS
+
+        # CONSISTENCY CALCULATION
+        consistency_bonus = np.mean([self.consistency - 5, self.form])
+        base += consistency_bonus
+        print(f"Consistency bonus: {consistency_bonus}")
+
+        # TAKE A RISK
+        risk_bonus = round((2*random.random()-1) * self.risk_taking, 2)
+        base += risk_bonus
+        print(f"Risk impact: {risk_bonus}")
+
+        # ADD FORM
+        base += self.form
+        print(f"Form impact: {self.form}\n")
+
+        # FATHER PRESENCE
+        father_present = random.random()
+        if father_present > 0.5:
+            print("** Their father is in the crowd")
+            father_bonus = round((father_present-0.5) *
+                                 self.relationship_with_father, 2)
+        else:
+            print("** They're looking around... looks like Dad didn't show up")
+            father_bonus = round((father_present-0.5) * 
+                                 (10 - self.relationship_with_father), 2)
+        base += father_bonus
+        print(f"Father presence: {father_bonus}\n")        
+        
+        random_jump_distance = random.gauss(base, base/24)
+        return round(random_jump_distance, 2)
