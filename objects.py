@@ -9,7 +9,6 @@ Created on Tue Jun 23 22:03:03 2020
 import locale
 import numpy as np
 import random
-import string
 import country_naming as cn
 from name_generator import generate_word
 
@@ -52,10 +51,12 @@ class Country():
 {"-" * 32}
 Welcome to {self.name}
 {"-" * 32}
-Our tournament takes place in: {self.full_name}.
 
-This country has a population of {self.population:,}.
-There are {self.hill_count} hills in total:
+Official country name:  {self.full_name}.
+Population:             {self.population:,}.
+Hill count:             {self.hill_count}
+
+Hills:
     {", ".join([hill.name for hill in self.hills])}
 
 Our first hill will be {self.hills[0].name}
@@ -75,14 +76,15 @@ class Hill():
         self.height = round(random.gauss(130, 6), 2)
         self.calculation_line = round(self.height * 0.9)
         self.hill_record = self.calculation_line
-        self.max_crowd_size = random.randint(0, 100000)
+        self.capacity = random.randint(0, 100000)
         self.name = self.generate_name()
 
     def __repr__(self):
         """Use name for object representation."""
         return self.name
-    
+
     def generate_name(self):
+        """Generate the name for the hill."""
         starting_strings = [self.country[:2], ""]
         starting_weights = [2, 3]
         starting_string = random.choices(starting_strings, starting_weights)[0]
@@ -92,11 +94,19 @@ class Hill():
     def print_stats(self):
         """Print stats for the hill."""
         print(f"""
-Hill Name:      {self.name}
-Height:         {self.height}m
+{"-" * 32}
+Welcome to {self.name} Hill!
+{"-" * 32}
+
+Hill Name:          {self.name}
+Height:             {self.height}m
+Calculation Line:   {self.calculation_line}m
+Hill Record:        {self.hill_record}m
+Capacity:           {self.capacity}
 """)
 
     def calculate_attendance(self, skijumpers):
+        """Calculate the attendance of the event."""
         home_country_count = 0
         home_hill_count = 0
         for skijumper in skijumpers:
@@ -105,11 +115,12 @@ Height:         {self.height}m
             if skijumper.home_hill == self.name:
                 home_hill_count += 1
         base = (home_country_count * 2 +
-                home_hill_count * 3) * self.max_crowd_size/100
-        
+                home_hill_count * 3) * self.capacity/100
+
         return round(min(
-            random.gauss(self.max_crowd_size/2 + base, self.max_crowd_size/6),
-            self.max_crowd_size))
+                random.gauss(
+                    self.capacity/2 + base, self.capacity/3),
+                self.capacity))
 
 
 class SkiJumper():
@@ -134,14 +145,44 @@ class SkiJumper():
         self.popularity = random.randint(1, 10)
         self.speed = random.randint(1, 10)
         self.balance = random.randint(1, 10)
+        self.style = random.randint(1, 10)
+        self.consistency = random.randint(1, 10)
         self.stamina = random.randint(1, 10)
         self.risk_taking = random.randint(1, 10)
         self.relationship_with_father = random.randint(1, 10)
         self.set_form()
+        self.assign_personality()
 
     def __repr__(self):
         """Use name for object representation."""
         return self.name
+    
+    def assign_personality(self):
+        """Determine the personality traits of the skijumper."""
+        self.personality = []
+        if self.height > 180 and self.weight > 70:
+            self.personality.append("Absolute Unit")
+        if self.popularity == 10:
+            self.personality.append("Fan Favourite")
+        if self.speed == 10:
+            self.personality.append("Speedster")
+        if self.balance == 10:
+            self.personality.append("Windproof")
+        if self.style == 10:
+            self.personality.append("Stylish")
+        if (
+            self.consistency > 8 and
+            self.balance > 8 and
+            self.style > 8
+                ):
+            self.personality.append("Perfect landing")
+        if self.risk_taking > 9:
+            self.personality.append("Daredevil")
+        if self.relationship_with_father < 3:
+            self.personality.append("Fragile")
+        if self.overall_score > 7:
+            self.personality.append("Bookkeepers' Favourite")
+
 
     def print_stats(self):
         """Print out the stats for a ski jumper."""
@@ -157,8 +198,10 @@ Weight:                     {round(self.weight, 2)}kg
 Popularity:                 {self.popularity}/10
 Speed:                      {self.speed}/10
 Balance:                    {self.balance}/10
+Style:                      {self.style}/10
 Stamina:                    {self.stamina}/10
-Risk Taking Rank:           {self.risk_taking}/10
+Consistency:                {self.consistency}/10
+Risk Taker:                 {self.risk_taking}/10
 Relationship With Father:   {self.relationship_with_father}/10
 
 --------- OVERALL SCORE ---------
@@ -170,7 +213,11 @@ Overall Score: {self.overall_score}
         self.form = random.gauss(5, 2)
         self.overall_score = round(np.mean([
             self.popularity, self.speed, self.balance, self.stamina,
+            self.consistency,
             self.risk_taking, self.relationship_with_father,
             self.form]), 4)
         
-    
+    def jump(self, hill):
+        base = hill.calculation_line
+        random_jump_distance = random.gauss(base, base/12)
+        return random_jump_distance
