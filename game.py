@@ -10,7 +10,7 @@ import functions as sk
 import pickle
 from create_world import create_world
 
-reset_all = True
+reset_all = False
 
 if reset_all:
     create_world()
@@ -36,15 +36,20 @@ hills_df["skijumpers"] = [
     for hill in hills_df.index]
 
 
+# INIIATE SKIJUMPER ROSTER
+roster = skijumpers_df.sort_values("overall_score").index.to_list().__iter__()
+
+
 # PICK A COUNTRY
 host_country = sk.select_country(countries)
-host_hills = (h.name for h in hills.values() if h.country == host_country.name)
+host_hills = (h for h in hills.values() if h.country == host_country.name)
 
 # GET HILL
 current_hill = sk.go_to_next_hill(host_hills)
-sk.start_hill(hills[current_hill], skijumpers.values())
+sk.start_hill(current_hill, skijumpers.values())
+hill_results = {}
 
 sk.tap_to_continue()
 
 # INITIATE A JUMP
-# jump_results = skijumpers[random.choice(skijumpers)].jump(hills[current_hill])
+sk.standard_round(current_hill, roster, skijumpers)
