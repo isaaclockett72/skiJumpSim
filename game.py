@@ -52,4 +52,4 @@ hill_results = {}
 sk.tap_to_continue()
 
 # INITIATE A JUMP
-sk.standard_round(current_hill, roster, skijumpers)
+round_results = sk.standard_round(current_hill, roster, skijumpers)
