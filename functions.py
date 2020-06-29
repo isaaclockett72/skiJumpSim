@@ -67,6 +67,7 @@ def select_country(countries):
 
 
 def standard_round(hill, roster, skijumpers):
+    """Run a standard round, in order of the roster."""
     results = {}
     while True:
         try:
@@ -74,12 +75,13 @@ def standard_round(hill, roster, skijumpers):
         except StopIteration:
             return results
         current_skijumper.print_stats()
-        
+
         tap_to_continue()
+
         # BASIC COMMENTARY
-        print(f"{current_skijumper} is beginnning their jump...\n")
+        print(f"\n{current_skijumper} is beginnning their jump...\n")
         jump_result = current_skijumper.jump(hill)
-        
+
         # BASIC RESULTS
         if results:
             print(f"The target distance is: {max(results.values())}m")
@@ -92,8 +94,6 @@ def standard_round(hill, roster, skijumpers):
             print("\nIt's a new hill record!\n")
             hill.hill_record = jump_result
         tap_to_continue()
-    
-    
 
 
 def start_hill(hill, skijumpers):
