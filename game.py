@@ -19,6 +19,10 @@ countries = pickle.load(open("countries.pkl", "rb"))
 hills = pickle.load(open("hills.pkl", "rb"))
 skijumpers = pickle.load(open("skijumpers.pkl", "rb"))
 
+for skijumper in skijumpers.values():
+    skijumper.set_form()
+    skijumper.assign_personality()
+
 countries_df = sk.obj_list_to_df(countries)
 countries_df["skijumpers"] = [
     [skijumper.name for skijumper in skijumpers.values()
@@ -36,5 +40,11 @@ hills_df["skijumpers"] = [
 host_country = sk.select_country(countries)
 host_hills = (h.name for h in hills.values() if h.country == host_country.name)
 
+# GET HILL
 current_hill = sk.go_to_next_hill(host_hills)
 sk.start_hill(hills[current_hill], skijumpers.values())
+
+sk.tap_to_continue()
+
+# INITIATE A JUMP
+# jump_results = skijumpers[random.choice(skijumpers)].jump(hills[current_hill])
