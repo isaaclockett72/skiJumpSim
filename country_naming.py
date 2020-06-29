@@ -263,7 +263,7 @@ country_suffixes = [
     " Islands",
     " Republic",
     ", The Abode of Peace",
-    " Verde,"
+    " Verde",
     ]
 
 country_interjections = [
