@@ -161,6 +161,8 @@ class SkiJumper():
         self.personality = []
         if self.height > 180 and self.weight > 70:
             self.personality.append("Absolute Unit")
+        if self.height > 180 and self.weight < 60:
+            self.personality.append("Bulemic")
         if self.popularity == 10:
             self.personality.append("Fan Favourite")
         if self.speed == 10:
@@ -180,15 +182,12 @@ class SkiJumper():
         if self.relationship_with_father < 3:
             self.personality.append("Fragile")
         if self.overall_score > 7:
-            self.personality.append("Bookkeepers' Favourite")
+            self.personality.append("Bookkeeper's Favourite")
 
     def print_stats(self):
         """Print out the stats for a ski jumper."""
         print(f"""
-{"-" * 32}
-{self.name}
-{"-" * 32}
-
+Name:                       {self.name}
 Country:                    {self.country_of_origin}
 Home Hill:                  {self.home_hill}
 
@@ -213,7 +212,7 @@ Overall Score:              {self.overall_score}
 
     def set_form(self):
         """Pick the form for the ski jumper and reset score."""
-        self.form = random.gauss(5, 2)
+        self.form = round(random.gauss(5, 2), 2)
         self.overall_score = round(np.mean([
             self.popularity, self.speed, self.balance,
             self.consistency, self.relationship_with_father,
@@ -243,10 +242,13 @@ Overall Score:              {self.overall_score}
             home_bonus = max(((self.popularity-5)/2), 0)
             base += home_bonus
             print(f"Home popularity bonus: {home_bonus}\n")
+        
         # JUMP SPEED SIMPLE
-        jump_bonus = round(random.randint(0, self.speed), 1)
+        jump_bonus = round(random.randint(1, self.speed), 1)
         jump_speed = round(hill.height/1.5 + jump_bonus, 1)
+        
         base += jump_bonus/2
+        
         print(f"Jump speed: {jump_speed}km/h")
         print(f"Jump speed bonus: {jump_bonus/2}\n")
 
@@ -255,7 +257,7 @@ Overall Score:              {self.overall_score}
         # STYLE OMITTED UNTIL STYLE POINTS
 
         # CONSISTENCY CALCULATION
-        consistency_bonus = np.mean([self.consistency - 5, self.form])
+        consistency_bonus = round(np.mean([self.consistency - 5, self.form]), 2)
         base += consistency_bonus
         print(f"Consistency bonus: {consistency_bonus}")
 
