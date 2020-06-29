@@ -66,6 +66,36 @@ def select_country(countries):
     return tournament_country
 
 
+def standard_round(hill, roster, skijumpers):
+    results = {}
+    while True:
+        try:
+            current_skijumper = skijumpers[roster.__next__()]
+        except StopIteration:
+            return results
+        current_skijumper.print_stats()
+        
+        tap_to_continue()
+        # BASIC COMMENTARY
+        print(f"{current_skijumper} is beginnning their jump...\n")
+        jump_result = current_skijumper.jump(hill)
+        
+        # BASIC RESULTS
+        if results:
+            print(f"The target distance is: {max(results.values())}m")
+        else:
+            print(f"The target distance is: {hill.calculation_line}m")
+        tap_to_continue()
+        print(f"""...and it's: {jump_result}m""")
+        results[current_skijumper.name] = jump_result
+        if jump_result > hill.hill_record:
+            print("\nIt's a new hill record!\n")
+            hill.hill_record = jump_result
+        tap_to_continue()
+    
+    
+
+
 def start_hill(hill, skijumpers):
     """Announce and begin the selected hill."""
     tap_to_continue()
@@ -78,4 +108,4 @@ def start_hill(hill, skijumpers):
 
 def tap_to_continue():
     """Pause until user enters a key."""
-    input("Tap Enter to continue\n")
+    input("--- Tap Enter to continue ---\n")
