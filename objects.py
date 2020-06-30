@@ -11,7 +11,7 @@ import numpy as np
 import random
 import country_naming as cn
 from name_generator import generate_word
-from ansi_colours import dashed_line, cyan, green, white, yellow
+from ansi_colours import dashed_line, kv_print, line_break, cyan, green, white, yellow
 
 locale.setlocale(locale.LC_ALL, '')
 
@@ -48,20 +48,18 @@ class Country():
 
     def introduce_country(self):
         """Announce a country upon arrival."""
-        print(f"""
-{dashed_line()}
-Welcome to {green}{self.name}
-{dashed_line()}
-
-{cyan}Official country name:  {green}{self.full_name}
-{cyan}Population:             {white}{self.population:,}.
-{cyan}Hill count:             {white}{self.hill_count}
-{cyan}Hills:
-    {green}{", ".join([hill.name for hill in self.hills])}
-{white}
-
-Our first hill will be {green}{self.hills[0].name}{white}
-""")
+        dashed_line(True)
+        print(f"Welcome to {green}{self.name}")
+        dashed_line(True)
+        line_break()
+        kv_print('Official country name', (self.full_name, green))
+        kv_print('Population', f"{self.population:,}")
+        kv_print('Hill count', self.hill_count)
+        line_break()
+        print("Hills:")
+        print(f"{green}{', '.join([hill.name for hill in self.hills])}{white}")
+        line_break()
+        print(f"Our first hill will be {green}{self.hills[0].name}{white}")
 
 
 class Hill():
@@ -94,17 +92,15 @@ class Hill():
 
     def print_stats(self):
         """Print stats for the hill."""
-        print(f"""
-{dashed_line()}
-Welcome to {green}{self.name} Hill!
-{dashed_line()}
-
-{cyan}Hill Name:          {green}{self.name}
-{cyan}Height:             {white}{self.height}m
-{cyan}Calculation Line:   {white}{self.calculation_line}m
-{cyan}Hill Record:        {white}{self.hill_record}m
-{cyan}Hill Capacity:      {white}{self.capacity:,}
-""")
+        dashed_line(True)
+        print(f"Welcome to {green}{self.name} Hill!")
+        dashed_line(True)
+        line_break()
+        kv_print("Hill Name", (self.name, green))
+        kv_print("Height", self.height, "m")
+        kv_print("Calculation Line", self.calculation_line, "m")
+        kv_print("Hill Record", self.hill_record, "m")
+        kv_print("Hill Capacity", f"{self.capacity:,}")
 
     def calculate_attendance(self, skijumpers):
         """Calculate the attendance of the event."""
@@ -187,33 +183,27 @@ class SkiJumper():
 
     def print_stats(self):
         """Print out the stats for a ski jumper."""
-        print(f"""
-
-{dashed_line()}
-{cyan}Skijumper Name:             {green}{self.name}
-{dashed_line()}
-
-{cyan}Country:                    {green}{self.country_of_origin}
-{cyan}Home Hill:                  {green}{self.home_hill}
-
-{yellow}------------- STATS -------------{white}
-
-{cyan}Personality:                {white}{", ".join(self.personality)}
-{cyan}Height:                     {white}{round(self.height, 2)}cm
-{cyan}Weight:                     {white}{round(self.weight, 2)}kg
-{cyan}Popularity:                 {white}{self.popularity} / 10
-{cyan}Speed:                      {white}{self.speed} / 10
-{cyan}Balance:                    {white}{self.balance} / 10
-{cyan}Style:                      {white}{self.style} / 10
-{cyan}Consistency:                {white}{self.consistency} / 10
-{cyan}Risk Taker:                 {white}{self.risk_taking} / 10
-{cyan}Relationship With Father:   {white}{self.relationship_with_father} / 10
-
-
-{yellow}--------- OVERALL SCORE ---------{white}
-
-{cyan}Overall Score:              {white}{self.overall_score}
-""")
+        dashed_line(True)
+        kv_print("Skijumper Name", (self.name, green))
+        dashed_line()
+        kv_print("Country", (self.country_of_origin, green))
+        kv_print("Home Hill", (self.home_hill, green))
+        line_break()
+        print(f"{yellow}------------- STATS -------------{white}")
+        line_break()
+        kv_print("Personality", ", ".join(self.personality))
+        kv_print("Height", round(self.height, 2), "cm")
+        kv_print("Weight", round(self.weight, 2), "kg")
+        kv_print("Popularity", self.popularity)
+        kv_print("Speed", self.speed)
+        kv_print("Balance", self.balance)
+        kv_print("Style", self.style)
+        kv_print("Consistency", self.consistency)
+        kv_print("Risk taker", self.risk_taking)
+        kv_print("Relationship with father", self.relationship_with_father)
+        line_break()
+        print(f"{yellow}--------- OVERALL SCORE ---------{white}")
+        kv_print("Overall score", self.overall_score)
 
     def set_form(self):
         """Pick the form for the ski jumper and reset score."""

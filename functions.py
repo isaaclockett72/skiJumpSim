@@ -10,7 +10,7 @@ import pandas as pd
 from pandas import DataFrame
 import random
 from objects import Country, SkiJumper
-from ansi_colours import red, white
+from ansi_colours import dashed_line, kv_print, line_break, cyan, green, red, white
 
 
 def extract_hills(countries):
@@ -91,21 +91,23 @@ def standard_round(hill, roster, skijumpers):
         tap_to_continue()
 
         # BASIC COMMENTARY
-        print(f"\033[33;1m{'-' * 32}")
-        print(f"\033[32;1m{current_skijumper}\033[0m is beginnning their jump...")
-        print(f"\033[33;1m{'-' * 32}")
+        dashed_line(True)
+        print(f"{green}{current_skijumper}{white} is beginnning their jump...")
+        dashed_line(True)
         jump_result = current_skijumper.jump(hill)
 
         # BASIC RESULTS
         if results:
-            print(f"\033[36;1mTarget Distance:     \033[0m{max(results.values())}m")
+            kv_print("Target Distance", max(results.values()), "m")
         else:
-            print(f"\033[36;1mTarget Distance:     \033[0m{hill.calculation_line}m")
+            kv_print("Target Distance", hill.calculation_line, "m")
         tap_to_continue()
-        print(f"""\033[36;1mResult:                \033[0m{jump_result}m""")
+        kv_print("Result", jump_result, "m")
         results[current_skijumper.name] = jump_result
         if jump_result > hill.hill_record:
+            line_break()
             print("\nIt's a new hill record!\n")
+            line_break()
             hill.hill_record = jump_result
         tap_to_continue()
 
@@ -115,11 +117,11 @@ def start_hill(hill, skijumpers):
     tap_to_continue()
     hill.print_stats()
     attendance = hill.calculate_attendance(skijumpers)
-    print(f"\033[36;1mAttendance: \033[0m{attendance:,} / {hill.capacity:,}")
+    kv_print("Attendance", f"{attendance:,} / {hill.capacity:,}")
     if attendance == hill.capacity:
         print("It's a sellout!")
 
 
 def tap_to_continue():
     """Pause until user enters a key."""
-    input("{red}\n--- Tap Enter to continue ---\n\n{white}")
+    input(f"{red}\n--- Tap Enter to continue ---\n\n{white}")
