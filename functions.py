@@ -10,6 +10,7 @@ import pandas as pd
 from pandas import DataFrame
 import random
 from objects import Country, SkiJumper
+from ansi_colours import red, white
 
 
 def extract_hills(countries):
@@ -58,6 +59,17 @@ def obj_list_to_df(obj_list, index_col="name"):
     return obj_df
 
 
+def print_color(text, color):
+    """Colour some text with ANSI encoding."""
+    color_map = {
+        "blue": "\033[34;1m",
+        "pink": "\033[35;1m",
+        "red": "\033[31;1m",
+        }
+    
+    print(color_map[color] + text + "\033[0m")
+
+
 def select_country(countries):
     """Select and announce the country selected for the tournament."""
     host_countries = {k: v for k, v in countries.items() if v.hill_count > 0}
@@ -79,16 +91,18 @@ def standard_round(hill, roster, skijumpers):
         tap_to_continue()
 
         # BASIC COMMENTARY
-        print(f"\n{current_skijumper} is beginnning their jump...\n")
+        print(f"\033[33;1m{'-' * 32}")
+        print(f"\033[32;1m{current_skijumper}\033[0m is beginnning their jump...")
+        print(f"\033[33;1m{'-' * 32}")
         jump_result = current_skijumper.jump(hill)
 
         # BASIC RESULTS
         if results:
-            print(f"The target distance is: {max(results.values())}m")
+            print(f"\033[36;1mTarget Distance:     \033[0m{max(results.values())}m")
         else:
-            print(f"The target distance is: {hill.calculation_line}m")
+            print(f"\033[36;1mTarget Distance:     \033[0m{hill.calculation_line}m")
         tap_to_continue()
-        print(f"""...and it's: {jump_result}m""")
+        print(f"""\033[36;1mResult:                \033[0m{jump_result}m""")
         results[current_skijumper.name] = jump_result
         if jump_result > hill.hill_record:
             print("\nIt's a new hill record!\n")
@@ -101,11 +115,11 @@ def start_hill(hill, skijumpers):
     tap_to_continue()
     hill.print_stats()
     attendance = hill.calculate_attendance(skijumpers)
-    print(f"Attendance: {attendance:,} / {hill.capacity:,}")
+    print(f"\033[36;1mAttendance: \033[0m{attendance:,} / {hill.capacity:,}")
     if attendance == hill.capacity:
         print("It's a sellout!")
 
 
 def tap_to_continue():
     """Pause until user enters a key."""
-    input("--- Tap Enter to continue ---\n")
+    input("{red}\n--- Tap Enter to continue ---\n\n{white}")

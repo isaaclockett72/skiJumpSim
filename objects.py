@@ -11,6 +11,7 @@ import numpy as np
 import random
 import country_naming as cn
 from name_generator import generate_word
+from ansi_colours import dashed_line, cyan, green, white, yellow
 
 locale.setlocale(locale.LC_ALL, '')
 
@@ -48,18 +49,18 @@ class Country():
     def introduce_country(self):
         """Announce a country upon arrival."""
         print(f"""
-{"-" * 32}
-Welcome to {self.name}
-{"-" * 32}
+{dashed_line()}
+Welcome to {green}{self.name}
+{dashed_line()}
 
-Official country name:  {self.full_name}.
-Population:             {self.population:,}.
-Hill count:             {self.hill_count}
+{cyan}Official country name:  {green}{self.full_name}
+{cyan}Population:             {white}{self.population:,}.
+{cyan}Hill count:             {white}{self.hill_count}
+{cyan}Hills:
+    {green}{", ".join([hill.name for hill in self.hills])}
+{white}
 
-Hills:
-    {", ".join([hill.name for hill in self.hills])}
-
-Our first hill will be {self.hills[0].name}
+Our first hill will be {green}{self.hills[0].name}{white}
 """)
 
 
@@ -94,15 +95,15 @@ class Hill():
     def print_stats(self):
         """Print stats for the hill."""
         print(f"""
-{"-" * 32}
-Welcome to {self.name} Hill!
-{"-" * 32}
+{dashed_line()}
+Welcome to {green}{self.name} Hill!
+{dashed_line()}
 
-Hill Name:          {self.name}
-Height:             {self.height}m
-Calculation Line:   {self.calculation_line}m
-Hill Record:        {self.hill_record}m
-Capacity:           {self.capacity:,}
+{cyan}Hill Name:          {green}{self.name}
+{cyan}Height:             {white}{self.height}m
+{cyan}Calculation Line:   {white}{self.calculation_line}m
+{cyan}Hill Record:        {white}{self.hill_record}m
+{cyan}Hill Capacity:      {white}{self.capacity:,}
 """)
 
     def calculate_attendance(self, skijumpers):
@@ -155,7 +156,7 @@ class SkiJumper():
     def __repr__(self):
         """Use name for object representation."""
         return self.name
-    
+
     def assign_personality(self):
         """Determine the personality traits of the skijumper."""
         self.personality = []
@@ -187,27 +188,31 @@ class SkiJumper():
     def print_stats(self):
         """Print out the stats for a ski jumper."""
         print(f"""
-Name:                       {self.name}
-Country:                    {self.country_of_origin}
-Home Hill:                  {self.home_hill}
 
-------------- STATS -------------
+{dashed_line()}
+{cyan}Skijumper Name:             {green}{self.name}
+{dashed_line()}
 
-Personality:                {",".join(self.personality)}
-Height:                     {round(self.height, 2)}cm
-Weight:                     {round(self.weight, 2)}kg
-Popularity:                 {self.popularity} / 10
-Speed:                      {self.speed} / 10
-Balance:                    {self.balance} / 10
-Style:                      {self.style} / 10
-Consistency:                {self.consistency} / 10
-Risk Taker:                 {self.risk_taking} / 10
-Relationship With Father:   {self.relationship_with_father} / 10
+{cyan}Country:                    {green}{self.country_of_origin}
+{cyan}Home Hill:                  {green}{self.home_hill}
+
+{yellow}------------- STATS -------------{white}
+
+{cyan}Personality:                {white}{", ".join(self.personality)}
+{cyan}Height:                     {white}{round(self.height, 2)}cm
+{cyan}Weight:                     {white}{round(self.weight, 2)}kg
+{cyan}Popularity:                 {white}{self.popularity} / 10
+{cyan}Speed:                      {white}{self.speed} / 10
+{cyan}Balance:                    {white}{self.balance} / 10
+{cyan}Style:                      {white}{self.style} / 10
+{cyan}Consistency:                {white}{self.consistency} / 10
+{cyan}Risk Taker:                 {white}{self.risk_taking} / 10
+{cyan}Relationship With Father:   {white}{self.relationship_with_father} / 10
 
 
---------- OVERALL SCORE ---------
+{yellow}--------- OVERALL SCORE ---------{white}
 
-Overall Score:              {self.overall_score}
+{cyan}Overall Score:              {white}{self.overall_score}
 """)
 
     def set_form(self):
@@ -225,63 +230,91 @@ Overall Score:              {self.overall_score}
         # HEIGHT BONUS
         height_bonus = round(self.height / hill.height, 2)
         base += height_bonus
-        print(f"""Height bonus: {height_bonus}""")
+        # print(f"""Height bonus: {height_bonus}""")
 
         # WEIGHT BONUS
         weight_bonus = round(self.height / self.weight, 2)
         base += weight_bonus
-        print(f"""Weight bonus: {weight_bonus}\n""")
+        # print(f"""Weight bonus: {weight_bonus}\n""")
 
         # POPULARITY IMPACT
         if hill.name == self.home_hill:
             hill_bonus = max((self.popularity-5), 0)
             base += hill_bonus
-            print(f"Home hill popularity bonus: {hill_bonus}")
+            # print(f"Home hill popularity bonus: {hill_bonus}")
+        else:
+            hill_bonus = 0
         if hill.country == self.country_of_origin:
-            print(f"Popularity: {self.popularity}")
+            # print(f"Popularity: {self.popularity}")
             home_bonus = max(((self.popularity-5)/2), 0)
             base += home_bonus
-            print(f"Home popularity bonus: {home_bonus}\n")
-        
+            # print(f"Home popularity bonus: {home_bonus}\n")
+        else:
+            home_bonus = 0
+
         # JUMP SPEED SIMPLE
         jump_bonus = round(random.randint(1, self.speed), 1)
         jump_speed = round(hill.height/1.5 + jump_bonus, 1)
-        
+
         base += jump_bonus/2
-        
-        print(f"Jump speed: {jump_speed}km/h")
-        print(f"Jump speed bonus: {jump_bonus/2}\n")
+
+        # print(f"Jump speed: {jump_speed}km/h")
+        # print(f"Jump speed bonus: {jump_bonus/2}\n")
 
         # BALANCE OMITTED UNTIL WIND GENERATED
 
         # STYLE OMITTED UNTIL STYLE POINTS
 
         # CONSISTENCY CALCULATION
-        consistency_bonus = round(np.mean([self.consistency - 5, self.form]), 2)
+        consistency_bonus = round(
+            np.mean([self.consistency - 5, self.form]), 2)
         base += consistency_bonus
-        print(f"Consistency bonus: {consistency_bonus}")
+        # print(f"Consistency bonus: {consistency_bonus}")
 
         # TAKE A RISK
         risk_bonus = round((2*random.random()-1) * self.risk_taking, 2)
         base += risk_bonus
-        print(f"Risk impact: {risk_bonus}")
+        # print(f"Risk impact: {risk_bonus}")
 
         # ADD FORM
         base += self.form
-        print(f"Form impact: {self.form}\n")
+        # print(f"Form impact: {self.form}\n")
 
         # FATHER PRESENCE
         father_present = random.random()
         if father_present > 0.5:
-            print("** Their father is in the crowd")
+            print("{white}* Their father is in the crowd")
             father_bonus = round((father_present-0.5) *
                                  self.relationship_with_father, 2)
         else:
-            print("** They're looking around... looks like Dad didn't show up")
+            print("{white}* They're looking around - looks like Dad didn't show up")
             father_bonus = round((father_present-0.5) * 
                                  (10 - self.relationship_with_father), 2)
         base += father_bonus
-        print(f"Father presence: {father_bonus}\n")        
+        # print(f"Father presence: {father_bonus}\n")
+        print(f"""
+{cyan}Height Bonus:               {white}{height_bonus}m
+{cyan}Weight Bonus:               {white}{weight_bonus}m
+{cyan}Home Country Bonus:         {white}{home_bonus}m
+{cyan}Home Hill Bonus:            {white}{hill_bonus}m
+
+{dashed_line()}
+
+{cyan}Jump Speed:                 {white}{jump_speed}km/h
+{cyan}Jump Speed Bonus:           {white}{jump_bonus/2}m
+
+{dashed_line()}
+
+{cyan}Consistency Bonus:          {white}{consistency_bonus}m
+{cyan}Risk Impact:                {white}{risk_bonus}m
+{cyan}Form Impact:                {white}{self.form}m
+
+{dashed_line()}
+
+{cyan}Father Presence:            {white}{father_bonus}m
+
+{dashed_line()}
+              """)
         
         random_jump_distance = random.gauss(base, base/24)
         return round(random_jump_distance, 2)

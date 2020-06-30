@@ -10,7 +10,7 @@ import functions as sk
 import pickle
 from create_world import create_world
 
-reset_all = False
+reset_all = True
 
 if reset_all:
     create_world()
