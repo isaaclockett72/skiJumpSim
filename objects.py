@@ -11,7 +11,8 @@ import numpy as np
 import random
 import country_naming as cn
 from name_generator import generate_word
-from ansi_colours import dashed_line, kv_print, line_break, cyan, green, white, yellow
+from formatting import dashed_line, kv_print, line_break
+from ansi_colours import green, white, yellow
 
 locale.setlocale(locale.LC_ALL, '')
 
@@ -48,9 +49,9 @@ class Country():
 
     def introduce_country(self):
         """Announce a country upon arrival."""
-        dashed_line(True)
+        dashed_line()
         print(f"Welcome to {green}{self.name}")
-        dashed_line(True)
+        dashed_line()
         line_break()
         kv_print('Official country name', (self.full_name, green))
         kv_print('Population', f"{self.population:,}")
@@ -92,9 +93,9 @@ class Hill():
 
     def print_stats(self):
         """Print stats for the hill."""
-        dashed_line(True)
+        dashed_line()
         print(f"Welcome to {green}{self.name} Hill!")
-        dashed_line(True)
+        dashed_line()
         line_break()
         kv_print("Hill Name", (self.name, green))
         kv_print("Height", self.height, "m")
@@ -114,10 +115,10 @@ class Hill():
         base = (home_country_count * 2 +
                 home_hill_count * 3) * self.capacity/100
 
-        return round(min(
+        return round(max(min(
                 random.gauss(
                     self.capacity/2 + base, self.capacity/3),
-                self.capacity))
+                self.capacity), 0))
 
 
 class SkiJumper():
@@ -158,7 +159,7 @@ class SkiJumper():
         self.personality = []
         if self.height > 180 and self.weight > 70:
             self.personality.append("Absolute Unit")
-        if self.height > 180 and self.weight < 60:
+        if self.height / self.weight > 3:
             self.personality.append("Bulemic")
         if self.popularity == 10:
             self.personality.append("Fan Favourite")
@@ -183,7 +184,7 @@ class SkiJumper():
 
     def print_stats(self):
         """Print out the stats for a ski jumper."""
-        dashed_line(True)
+        dashed_line()
         kv_print("Skijumper Name", (self.name, green))
         dashed_line()
         kv_print("Country", (self.country_of_origin, green))
@@ -194,13 +195,14 @@ class SkiJumper():
         kv_print("Personality", ", ".join(self.personality))
         kv_print("Height", round(self.height, 2), "cm")
         kv_print("Weight", round(self.weight, 2), "kg")
-        kv_print("Popularity", self.popularity)
-        kv_print("Speed", self.speed)
-        kv_print("Balance", self.balance)
-        kv_print("Style", self.style)
-        kv_print("Consistency", self.consistency)
-        kv_print("Risk taker", self.risk_taking)
-        kv_print("Relationship with father", self.relationship_with_father)
+        kv_print("Popularity", self.popularity, colour_map=True)
+        kv_print("Speed", self.speed, colour_map=True)
+        kv_print("Balance", self.balance, colour_map=True)
+        kv_print("Style", self.style, colour_map=True)
+        kv_print("Consistency", self.consistency, colour_map=True)
+        kv_print("Risk taker", self.risk_taking, colour_map=True)
+        kv_print("Relationship with father", self.relationship_with_father,
+                 colour_map=True)
         line_break()
         print(f"{yellow}--------- OVERALL SCORE ---------{white}")
         kv_print("Overall score", self.overall_score)
@@ -213,17 +215,26 @@ class SkiJumper():
             self.consistency, self.relationship_with_father,
             self.form]), 4)
 
-    def jump(self, hill):
+    def jump(self, hill, breakdown=False):
         """Make the skijumper jump on the selected hill."""
+        dashed_line()
+        print(f"{green}{self.name}{white} is beginnning their jump...")
+        dashed_line()
+        
+        line_break()
+        
         base = hill.calculation_line
+        estimation = base
 
         # HEIGHT BONUS
         height_bonus = round(self.height / hill.height, 2)
         base += height_bonus
+        estimation += height_bonus
         # print(f"""Height bonus: {height_bonus}""")
 
         # WEIGHT BONUS
         weight_bonus = round(self.height / self.weight, 2)
+        base += weight_bonus
         base += weight_bonus
         # print(f"""Weight bonus: {weight_bonus}\n""")
 
@@ -268,43 +279,37 @@ class SkiJumper():
 
         # ADD FORM
         base += self.form
+        estimation += self.form
         # print(f"Form impact: {self.form}\n")
 
         # FATHER PRESENCE
         father_present = random.random()
         if father_present > 0.5:
-            print("{white}* Their father is in the crowd")
+            print(f"{white}* Their father is in the crowd")
             father_bonus = round((father_present-0.5) *
                                  self.relationship_with_father, 2)
         else:
-            print("{white}* They're looking around - looks like Dad didn't show up")
+            print(f"{white}* They're looking around - looks like Dad didn't show up")
             father_bonus = round((father_present-0.5) * 
                                  (10 - self.relationship_with_father), 2)
         base += father_bonus
-        # print(f"Father presence: {father_bonus}\n")
-        print(f"""
-{cyan}Height Bonus:               {white}{height_bonus}m
-{cyan}Weight Bonus:               {white}{weight_bonus}m
-{cyan}Home Country Bonus:         {white}{home_bonus}m
-{cyan}Home Hill Bonus:            {white}{hill_bonus}m
-
-{dashed_line()}
-
-{cyan}Jump Speed:                 {white}{jump_speed}km/h
-{cyan}Jump Speed Bonus:           {white}{jump_bonus/2}m
-
-{dashed_line()}
-
-{cyan}Consistency Bonus:          {white}{consistency_bonus}m
-{cyan}Risk Impact:                {white}{risk_bonus}m
-{cyan}Form Impact:                {white}{self.form}m
-
-{dashed_line()}
-
-{cyan}Father Presence:            {white}{father_bonus}m
-
-{dashed_line()}
-              """)
+        estiation = round(estimation, 2)
         
+        if breakdown:
+            dashed_line(n=50)
+            kv_print("Height Bonus", height_bonus, "m")
+            kv_print("Weight Bonus", weight_bonus, "m")
+            kv_print("Home Hill Bonus", hill_bonus, "m")
+            kv_print("Home Country Bonus", home_bonus, "m")
+            dashed_line(n=50)
+            kv_print("Jump Speed", jump_speed, "km/h")
+            kv_print("Jump Speed Bonus", jump_bonus/2, "m")
+            dashed_line(n=50)
+            kv_print("Consistency Bonus", consistency_bonus, "m")
+            kv_print("Risk Impact", risk_bonus, "m")
+            kv_print("Form Impact", self.form, "m")
+            kv_print("Father Presence", father_bonus, "m")
+            dashed_line(n=50)
+        kv_print("Expected distance", estimation, "m")
         random_jump_distance = random.gauss(base, base/24)
         return round(random_jump_distance, 2)
