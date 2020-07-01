@@ -10,8 +10,9 @@ import pandas as pd
 from pandas import DataFrame
 import random
 from objects import Country, SkiJumper
-from formatting import dashed_line, kv_print, line_break
-from ansi_colours import green, red, white
+import time
+from formatting import kv_print, line_break
+from ansi_colours import light_purple, white, yellow
 
 
 def extract_hills(countries):
@@ -89,6 +90,7 @@ def standard_round(hill, roster, skijumpers):
         else:
             kv_print("Calculation line", hill.calculation_line, "m")
         tap_to_continue()
+        time.sleep(1)
         kv_print("Result", jump_result, "m")
         results[current_skijumper.name] = jump_result
         if jump_result > hill.hill_record:
@@ -113,8 +115,10 @@ def start_hill(hill, skijumpers):
 def tap_to_continue(options=None):
     """Pause until user enters a key."""
     if options:
-        print(f"\n\n{red}**Custom options:")
+        print(f"\n\n{yellow}**Custom options:")
         for option in options:
-            kv_print((option, red), options[option])
-    user_input = input(f"{red}\n--- Tap Enter to continue ---\n\n{white}")
+            kv_print((option, white), options[option])
+    else:
+        line_break()
+    user_input = input(f"{light_purple}--- Tap Enter to continue ---\n\n{white}")
     return user_input

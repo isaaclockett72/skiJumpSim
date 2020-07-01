@@ -12,7 +12,7 @@ import random
 import country_naming as cn
 from name_generator import generate_word
 from formatting import dashed_line, kv_print, line_break
-from ansi_colours import green, white, yellow
+from ansi_colours import light_green, white, yellow
 
 locale.setlocale(locale.LC_ALL, '')
 
@@ -50,17 +50,17 @@ class Country():
     def introduce_country(self):
         """Announce a country upon arrival."""
         dashed_line()
-        print(f"Welcome to {green}{self.name}")
+        print(f"Welcome to {light_green}{self.name}")
         dashed_line()
         line_break()
-        kv_print('Official country name', (self.full_name, green))
+        kv_print('Official country name', (self.full_name, light_green))
         kv_print('Population', f"{self.population:,}")
         kv_print('Hill count', self.hill_count)
         line_break()
         print("Hills:")
-        print(f"{green}{', '.join([hill.name for hill in self.hills])}{white}")
+        print(f"""{light_green}{', '.join([hill.name for hill in self.hills])}{white}""")
         line_break()
-        print(f"Our first hill will be {green}{self.hills[0].name}{white}")
+        print(f"Our first hill will be {light_green}{self.hills[0].name}{white}")
 
 
 class Hill():
@@ -74,7 +74,7 @@ class Hill():
 
         self.country = country_name
         self.height = round(random.gauss(130, 6), 2)
-        self.calculation_line = round(self.height * 0.9)
+        self.calculation_line = round(self.height * 0.9, 1)
         self.hill_record = self.calculation_line
         self.capacity = random.randint(0, 100000)
         self.name = self.generate_name()
@@ -94,10 +94,10 @@ class Hill():
     def print_stats(self):
         """Print stats for the hill."""
         dashed_line()
-        print(f"Welcome to {green}{self.name} Hill!")
+        print(f"Welcome to {light_green}{self.name} Hill!")
         dashed_line()
         line_break()
-        kv_print("Hill Name", (self.name, green))
+        kv_print("Hill Name", (self.name, light_green))
         kv_print("Height", self.height, "m")
         kv_print("Calculation Line", self.calculation_line, "m")
         kv_print("Hill Record", self.hill_record, "m")
@@ -185,24 +185,24 @@ class SkiJumper():
     def print_stats(self):
         """Print out the stats for a ski jumper."""
         dashed_line()
-        kv_print("Skijumper Name", (self.name, green))
+        kv_print("Skijumper Name", (self.name, light_green))
         dashed_line()
-        kv_print("Country", (self.country_of_origin, green))
-        kv_print("Home Hill", (self.home_hill, green))
+        kv_print("Country", (self.country_of_origin, light_green))
+        kv_print("Home Hill", (self.home_hill, light_green))
         line_break()
         print(f"{yellow}------------- STATS -------------{white}")
         line_break()
         kv_print("Personality", ", ".join(self.personality))
         kv_print("Height", round(self.height, 2), "cm")
         kv_print("Weight", round(self.weight, 2), "kg")
-        kv_print("Popularity", self.popularity, colour_map=True)
-        kv_print("Speed", self.speed, colour_map=True)
-        kv_print("Balance", self.balance, colour_map=True)
-        kv_print("Style", self.style, colour_map=True)
-        kv_print("Consistency", self.consistency, colour_map=True)
-        kv_print("Risk taker", self.risk_taking, colour_map=True)
+        kv_print("Popularity", self.popularity, colour_map=True, symbol="◼︎")
+        kv_print("Speed", self.speed, colour_map=True, symbol="◼︎")
+        kv_print("Balance", self.balance, colour_map=True, symbol="◼︎")
+        kv_print("Style", self.style, colour_map=True, symbol="◼︎")
+        kv_print("Consistency", self.consistency, colour_map=True, symbol="◼︎")
+        kv_print("Risk taker", self.risk_taking, colour_map=True, symbol="◼︎")
         kv_print("Relationship with father", self.relationship_with_father,
-                 colour_map=True)
+                 colour_map=True, symbol="◼︎")
         line_break()
         print(f"{yellow}--------- OVERALL SCORE ---------{white}")
         kv_print("Overall score", self.overall_score)
@@ -218,11 +218,10 @@ class SkiJumper():
     def jump(self, hill, breakdown=False):
         """Make the skijumper jump on the selected hill."""
         dashed_line()
-        print(f"{green}{self.name}{white} is beginnning their jump...")
+        print(f"{light_green}{self.name}{white} is beginnning their jump...")
         dashed_line()
-        
         line_break()
-        
+
         base = hill.calculation_line
         estimation = base
 
@@ -284,17 +283,20 @@ class SkiJumper():
 
         # FATHER PRESENCE
         father_present = random.random()
+        print(f"{white}They're looking around...")
         if father_present > 0.5:
-            print(f"{white}* Their father is in the crowd")
+            print(f"* Their father is in the crowd")
+            line_break()
             father_bonus = round((father_present-0.5) *
                                  self.relationship_with_father, 2)
         else:
-            print(f"{white}* They're looking around - looks like Dad didn't show up")
-            father_bonus = round((father_present-0.5) * 
+            print(f"* Looks like Dad didn't show up")
+            line_break()
+            father_bonus = round((father_present-0.5) *
                                  (10 - self.relationship_with_father), 2)
         base += father_bonus
-        estiation = round(estimation, 2)
-        
+        estimation = round(estimation, 2)
+
         if breakdown:
             dashed_line(n=50)
             kv_print("Height Bonus", height_bonus, "m")
@@ -311,5 +313,6 @@ class SkiJumper():
             kv_print("Father Presence", father_bonus, "m")
             dashed_line(n=50)
         kv_print("Expected distance", estimation, "m")
+        line_break()
         random_jump_distance = random.gauss(base, base/24)
         return round(random_jump_distance, 2)
