@@ -7,6 +7,7 @@ Created on Tue Jun 23 22:03:03 2020
 """
 
 import locale
+import math
 import numpy as np
 import random
 import country_naming as cn
@@ -76,7 +77,8 @@ class Hill():
         self.height = round(random.gauss(130, 6), 2)
         self.calculation_line = round(self.height * 0.9, 1)
         self.hill_record = self.calculation_line
-        self.capacity = random.randint(0, 100000)
+        self.capacity = random.randint(1, 100000)
+        self.wind_variability = random.randint(1, 10)
         self.name = self.generate_name()
 
     def __repr__(self):
@@ -119,6 +121,27 @@ class Hill():
                 random.gauss(
                     self.capacity/2 + base, self.capacity/3),
                 self.capacity), 0))
+
+
+class Jump():
+    """A jump is something that a skijumper does to a hill."""
+    
+    def __init__(self, base_distance, wind_speed, balance):
+        """Initialise variables."""
+        self.base_distance = base_distance
+        self.hill_wind_speed = wind_speed
+        self.ski_jumper_balance = balance
+
+    def calculate_horizontal_wind(self):
+        """Calculate the horizontal wind's impact on the jump."""
+        wind_alpha = 1 / self.hill_wind_speed
+        wind_horizontal = random.expovariate(wind_alpha)
+        direction = -1 if random.random() < 0.5 else 1
+        wind_horizontal *= direction
+        wind_horizontal *= (self.ski_jumper_balance-5)
+        self.wind_horizontal = round(wind_horizontal, 2)
+        angle = math.radians(wind_horizontal)
+        return math.cos(angle) * self.base_distance
 
 
 class SkiJumper():
@@ -215,6 +238,7 @@ class SkiJumper():
             self.consistency, self.relationship_with_father,
             self.form]), 4)
 
+
     def jump(self, hill, breakdown=False):
         """Make the skijumper jump on the selected hill."""
         dashed_line()
@@ -222,7 +246,7 @@ class SkiJumper():
         dashed_line()
         line_break()
 
-        base = hill.calculation_line
+        base = hill.calculation_line * 0.9
         estimation = base
 
         # HEIGHT BONUS
@@ -296,6 +320,9 @@ class SkiJumper():
                                  (10 - self.relationship_with_father), 2)
         base += father_bonus
         estimation = round(estimation, 2)
+        jump_obj = Jump(base, hill.wind_variability,
+                        self.balance)
+        horizontal_adj_distance = jump_obj.calculate_horizontal_wind()
 
         if breakdown:
             dashed_line(n=50)
@@ -312,7 +339,11 @@ class SkiJumper():
             kv_print("Form Impact", self.form, "m")
             kv_print("Father Presence", father_bonus, "m")
             dashed_line(n=50)
+            kv_print("Wind Horizontal", jump_obj.wind_horizontal, "km/h")
         kv_print("Expected distance", estimation, "m")
         line_break()
-        random_jump_distance = random.gauss(base, base/24)
-        return round(random_jump_distance, 2)
+
+        # jump_distance = random.gauss(base, base/24)
+        
+
+        return round(horizontal_adj_distance, 2)
