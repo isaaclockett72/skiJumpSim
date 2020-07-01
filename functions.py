@@ -10,7 +10,8 @@ import pandas as pd
 from pandas import DataFrame
 import random
 from objects import Country, SkiJumper
-from ansi_colours import dashed_line, kv_print, line_break, cyan, green, red, white
+from formatting import dashed_line, kv_print, line_break
+from ansi_colours import green, red, white
 
 
 def extract_hills(countries):
@@ -59,17 +60,6 @@ def obj_list_to_df(obj_list, index_col="name"):
     return obj_df
 
 
-def print_color(text, color):
-    """Colour some text with ANSI encoding."""
-    color_map = {
-        "blue": "\033[34;1m",
-        "pink": "\033[35;1m",
-        "red": "\033[31;1m",
-        }
-    
-    print(color_map[color] + text + "\033[0m")
-
-
 def select_country(countries):
     """Select and announce the country selected for the tournament."""
     host_countries = {k: v for k, v in countries.items() if v.hill_count > 0}
@@ -88,19 +78,16 @@ def standard_round(hill, roster, skijumpers):
             return results
         current_skijumper.print_stats()
 
-        tap_to_continue()
+        user_input = tap_to_continue({"b": "breakdown"})
 
         # BASIC COMMENTARY
-        dashed_line(True)
-        print(f"{green}{current_skijumper}{white} is beginnning their jump...")
-        dashed_line(True)
-        jump_result = current_skijumper.jump(hill)
+        jump_result = current_skijumper.jump(hill, breakdown=user_input=="b")
 
         # BASIC RESULTS
         if results:
-            kv_print("Target Distance", max(results.values()), "m")
+            kv_print("Current Record", max(results.values()), "m")
         else:
-            kv_print("Target Distance", hill.calculation_line, "m")
+            kv_print("Calculation line", hill.calculation_line, "m")
         tap_to_continue()
         kv_print("Result", jump_result, "m")
         results[current_skijumper.name] = jump_result
@@ -119,9 +106,15 @@ def start_hill(hill, skijumpers):
     attendance = hill.calculate_attendance(skijumpers)
     kv_print("Attendance", f"{attendance:,} / {hill.capacity:,}")
     if attendance == hill.capacity:
+        line_break()
         print("It's a sellout!")
 
-
-def tap_to_continue():
+ 
+def tap_to_continue(options=None):
     """Pause until user enters a key."""
-    input(f"{red}\n--- Tap Enter to continue ---\n\n{white}")
+    if options:
+        print(f"\n\n{red}**Custom options:")
+        for option in options:
+            kv_print((option, red), options[option])
+    user_input = input(f"{red}\n--- Tap Enter to continue ---\n\n{white}")
+    return user_input
