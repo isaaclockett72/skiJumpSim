@@ -26,6 +26,7 @@ def colour_map_1_to_10(x):
         }
     return colour_map[x]
 
+
 def dashed_line(print_out=True, n=50, colour=yellow):
     """Create a dashed line of a prespecified colour."""
     if print_out:
@@ -38,24 +39,21 @@ def kv_print(k, v, suffix="", key_width=32, colour_map=False,
              symbol=False, return_text=False):
     """Print a kv pair cleanly and colourfully."""
     if isinstance(k, tuple):
-        if len(k) != 2:
-            raise IndexError("Enter the key in the format: (k, colour)")
-        k_colour = k[1]
-        k = k[0]
+        k_val, k_colour = k
     else:
+        k_val = k
         k_colour = light_cyan
     if isinstance(v, tuple):
-        if len(v) != 2:
-            raise IndexError("Enter the value in the format: (v, colour)")
-        v_colour = v[1]
-        v = v[0]
-    elif colour_map:
-        v_colour = colour_map_1_to_10(v)
+        v_val, v_colour = v
     else:
+        v_val = v
         v_colour = white
-    if symbol and isinstance(v, int):
-        v = v * symbol
-    print_str = f"{k_colour}{(k+':'):{key_width}}{v_colour}{v}{suffix}"
+
+    if colour_map:
+        v_colour = colour_map_1_to_10(v)
+    if symbol and isinstance(v_val, int):
+        v_val = v_val * symbol
+    print_str = f"{k_colour}{(k_val+':'):{key_width}}{v_colour}{v_val}{suffix}"
     if return_text:
         return print_str
     else:
@@ -65,3 +63,4 @@ def kv_print(k, v, suffix="", key_width=32, colour_map=False,
 def line_break(n=1):
     """Print n blank lines."""
     print("" + (n-1) * "\n")
+
