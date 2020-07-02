@@ -9,7 +9,7 @@ Created on Sat Jun 27 15:18:56 2020
 import pandas as pd
 from pandas import DataFrame
 import random
-from objects import Country, SkiJumper
+from objects import Country, SkiJumper, Jump
 import time
 from console_formatting.formatting import kv_print, line_break
 from console_formatting.ansi_colours import light_purple, white, yellow
@@ -72,33 +72,40 @@ def select_country(countries):
 def standard_round(hill, roster, skijumpers):
     """Run a standard round, in order of the roster."""
     results = {}
-    while True:
-        try:
-            current_skijumper = skijumpers[roster.__next__()]
-        except StopIteration:
-            return results
-        current_skijumper.print_stats()
+    try:
+        while True:
+            try:
+                current_skijumper = skijumpers[roster.__next__()]
+            except StopIteration:
+                return results
+            current_skijumper.print_stats()
+            user_input = tap_to_continue({"b": "breakdown"})
 
-        user_input = tap_to_continue({"b": "breakdown"})
+            # JUMP
+            jump = Jump(current_skijumper, hill)
+            jump.initiate_jump()
+            if user_input == "b":
+                jump.print_jump_breakdown()
 
-        # BASIC COMMENTARY
-        jump_result = current_skijumper.jump(hill, breakdown=user_input=="b")
+            jump_distance = max(round(jump.jump_distance, 2), 0)
 
-        # BASIC RESULTS
-        if results:
-            kv_print("Current Record", max(results.values()), "m")
-        else:
-            kv_print("Calculation line", hill.calculation_line, "m")
-        tap_to_continue()
-        time.sleep(1)
-        kv_print("Result", jump_result, "m")
-        results[current_skijumper.name] = jump_result
-        if jump_result > hill.hill_record:
-            line_break()
-            print("\nIt's a new hill record!\n")
-            line_break()
-            hill.hill_record = jump_result
-        tap_to_continue()
+            # BASIC RESULTS
+            if results:
+                kv_print("Current Record", max(results.values()), "m")
+            else:
+                kv_print("Calculation line", hill.calculation_line, "m")
+            tap_to_continue()
+            time.sleep(0.5)
+            kv_print("Result", jump_distance, "m")
+            results[current_skijumper.name] = jump_distance
+            if jump_distance > hill.hill_record:
+                line_break()
+                print("\nIt's a new hill record!\n")
+                line_break()
+                hill.hill_record = jump_distance
+            tap_to_continue()
+    except KeyboardInterrupt:
+        return results
 
 
 def start_hill(hill, skijumpers):

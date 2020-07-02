@@ -13,7 +13,7 @@ import random
 import country_naming as cn
 from name_generator import generate_word
 from console_formatting.formatting import dashed_line, kv_print, line_break
-from console_formatting.ansi_colours import light_green, white, yellow
+from console_formatting.ansi_colours import light_blue, light_green, white, yellow
 
 locale.setlocale(locale.LC_ALL, '')
 
@@ -43,6 +43,7 @@ class Country():
         self.population = random.randint(1, 25000000)
         self.hill_count = random.choices(range(0, 10), range(10, 0, -1))[0]
         self.hills = [Hill(self.name) for x in range(self.hill_count)]
+        pass
 
     def __repr__(self):
         """Use name for object representation."""
@@ -64,6 +65,7 @@ class Country():
         line_break()
         hill_name = self.hills[0].name
         print(f"Our first hill will be {light_green}{hill_name}{white}")
+        pass
 
 
 class Hill():
@@ -82,6 +84,7 @@ class Hill():
         self.capacity = random.randint(1, 100000)
         self.wind_variability = random.randint(1, 10)
         self.name = self.generate_name()
+        pass
 
     def __repr__(self):
         """Use name for object representation."""
@@ -106,6 +109,7 @@ class Hill():
         kv_print("Calculation Line", self.calculation_line, "m")
         kv_print("Hill Record", self.hill_record, "m")
         kv_print("Hill Capacity", f"{self.capacity:,}")
+        pass
 
     def calculate_attendance(self, skijumpers):
         """Calculate the attendance of the event."""
@@ -128,22 +132,136 @@ class Hill():
 class Jump():
     """A jump is something that a skijumper does to a hill."""
 
-    def __init__(self, base_distance, wind_speed, balance):
+    def __init__(self, skijumper, hill, print_breakdown=False):
         """Initialise variables."""
-        self.base_distance = base_distance
-        self.hill_wind_speed = wind_speed
-        self.ski_jumper_balance = balance
+        self.skijumper = skijumper
+        self.hill = hill
+        self.jump_distance = hill.calculation_line * 0.9
+        self.estimate = self.jump_distance
+        self.print_breakdown = print_breakdown
+        pass
+
+    def calculate_consistency_bonus(self):
+        """Calculate consistency bonus."""
+        self.consistency_bonus = round(
+            np.mean([self.skijumper.consistency - 5, self.skijumper.form]), 2)
+        self.jump_distance += self.consistency_bonus
+
+    def calculate_father_bonus(self):
+        """Calculate the penalty / bonus for father presence."""
+        self.father_present = random.random()
+        print(f"{white}They're looking around...")
+        line_break()
+        if self.father_present > 0.5:
+            print(f"* Their father is in the crowd")
+            line_break()
+            self.father_bonus = round(
+                (self.father_present-0.5) *
+                self.skijumper.relationship_with_father, 2)
+        else:
+            print(f"* Looks like Dad didn't show up")
+            line_break()
+            self.father_bonus = round(
+                (self.father_present - 0.5) *
+                (10 - self.skijumper.relationship_with_father), 2)
+        self.jump_distance += self.father_bonus
+        self.estimate = round(self.estimate, 2)
+
+    def calculate_form_bonus(self):
+        """Calculate the form bonus."""
+        self.form_bonus = self.skijumper.form
+        self.jump_distance += self.skijumper.form
+        self.estimate += self.skijumper.form
+
+    def calculate_height_bonus(self):
+        """Calculate the height bonus."""
+        self.height_bonus = round(self.skijumper.height / self.hill.height, 2)
+        self.jump_distance += self.height_bonus
+        self.estimate += self.height_bonus
+        pass
 
     def calculate_horizontal_wind(self):
         """Calculate the horizontal wind's impact on the jump."""
-        wind_alpha = 1 / self.hill_wind_speed
-        wind_horizontal = random.expovariate(wind_alpha)
+        self.wind_alpha = 1 / self.hill.wind_variability
+        self.wind_horizontal = random.expovariate(self.wind_alpha)
         direction = -1 if random.random() < 0.5 else 1
-        wind_horizontal *= direction
-        wind_horizontal *= (self.ski_jumper_balance-5)
-        self.wind_horizontal = round(wind_horizontal, 2)
-        angle = math.radians(wind_horizontal)
-        return math.cos(angle) * self.base_distance
+        self.wind_horizontal *= direction
+        self.wind_horizontal *= (self.skijumper.balance - 5)
+        self.wind_horizontal = round(self.wind_horizontal, 2)
+        self.angle = math.radians(self.wind_horizontal)
+        self.jump_distance = self.jump_distance * math.cos(self.angle)
+
+    def calculate_jump_speed(self):
+        """Calculate the jump speed and bonus."""
+        self.jump_bonus = round(random.randint(1, self.skijumper.speed), 1)
+        self.jump_speed = round(self.hill.height/1.5 + self.jump_bonus, 1)
+        self.jump_distance += self.jump_bonus/2
+        pass
+
+    def calculate_popularity_bonus(self):
+        """Calculate popularity bonus."""
+        if self.hill.name == self.skijumper.home_hill:
+            self.hill_bonus = max((self.skijumper.popularity-5)/1.5, 0)
+        else:
+            self.hill_bonus = 0
+        self.jump_distance += self.hill_bonus
+        if self.hill.country == self.skijumper.country_of_origin:
+            self.home_bonus = max(((self.skijumper.popularity-5)/2), 0)
+        else:
+            self.home_bonus = 0
+        self.jump_distance += self.home_bonus
+        pass
+
+    def calculate_risk_bonus(self):
+        """Calculate the risk bonus / penalty."""
+        self.risk_bonus = round((2*random.random()-1) *
+                                self.skijumper.risk_taking, 2)
+        self.jump_distance += self.risk_bonus
+        pass
+
+    def calculate_weight_bonus(self):
+        """Calculate the weight bonus."""
+        self.weight_bonus = round(self.skijumper.height / self.skijumper.weight, 2)
+        self.jump_distance += self.weight_bonus
+        self.estimate += self.weight_bonus
+        pass
+
+    def initiate_jump(self):
+        """Initiate the jump."""
+        dashed_line()
+        print(f"{light_green}{self.skijumper.name}{white} is beginnning their jump...")
+        dashed_line()
+        line_break()
+        self.calculate_height_bonus()
+        self.calculate_weight_bonus()
+        self.calculate_popularity_bonus()
+        self.calculate_consistency_bonus()
+        self.calculate_jump_speed()
+        self.calculate_risk_bonus()
+        self.calculate_form_bonus()
+        self.calculate_father_bonus()
+        self.calculate_horizontal_wind()
+        kv_print("Expected distance", self.estimate, "m")
+        pass
+
+    def print_jump_breakdown(self):
+        """Print the jump breakdown results."""
+        dashed_line(n=50)
+        kv_print("Height Bonus", self.height_bonus, "m")
+        kv_print("Weight Bonus", self.weight_bonus, "m")
+        kv_print("Home Hill Bonus", self.hill_bonus, "m")
+        kv_print("Home Country Bonus", self.home_bonus, "m")
+        dashed_line(n=50)
+        kv_print("Jump Speed", self.jump_speed, "km/h")
+        kv_print("Jump Speed Bonus", self.jump_bonus/2, "m")
+        dashed_line(n=50)
+        kv_print("Consistency Bonus", self.consistency_bonus, "m")
+        kv_print("Risk Impact", self.risk_bonus, "m")
+        kv_print("Form Impact", self.form_bonus, "m")
+        kv_print("Father Presence", self.father_bonus, "m")
+        dashed_line(n=50)
+        kv_print("Wind Horizontal", self.wind_horizontal, "km/h")
+        pass
 
 
 class SkiJumper():
@@ -174,6 +292,7 @@ class SkiJumper():
         self.relationship_with_father = random.randint(1, 10)
         self.set_form()
         self.assign_personality()
+        pass
 
     def __repr__(self):
         """Use name for object representation."""
@@ -206,6 +325,8 @@ class SkiJumper():
             self.personality.append("Fragile")
         if self.overall_score > 7:
             self.personality.append("Bookkeeper's Favourite")
+        pass
+
 
     def print_stats(self):
         """Print out the stats for a ski jumper."""
@@ -217,7 +338,7 @@ class SkiJumper():
         line_break()
         print(f"{yellow}------------- STATS -------------{white}")
         line_break()
-        kv_print("Personality", ", ".join(self.personality))
+        kv_print("Personality", (", ".join(self.personality), light_blue))
         kv_print("Height", round(self.height, 2), "cm")
         kv_print("Weight", round(self.weight, 2), "kg")
         kv_print("Popularity", self.popularity, colour_map=True, symbol="◼︎")
@@ -231,6 +352,8 @@ class SkiJumper():
         line_break()
         print(f"{yellow}--------- OVERALL SCORE ---------{white}")
         kv_print("Overall score", self.overall_score)
+        pass
+
 
     def set_form(self):
         """Pick the form for the ski jumper and reset score."""
@@ -239,97 +362,11 @@ class SkiJumper():
             self.popularity, self.speed, self.balance,
             self.consistency, self.relationship_with_father,
             self.form]), 4)
+        pass
+
 
     def jump(self, hill, breakdown=False):
         """Make the skijumper jump on the selected hill."""
-        dashed_line()
-        print(f"{light_green}{self.name}{white} is beginnning their jump...")
-        dashed_line()
-        line_break()
 
-        base = hill.calculation_line * 0.9
-        estimation = base
-
-        # HEIGHT BONUS
-        height_bonus = round(self.height / hill.height, 2)
-        base += height_bonus
-        estimation += height_bonus
-
-        # WEIGHT BONUS
-        weight_bonus = round(self.height / self.weight, 2)
-        base += weight_bonus
-        base += weight_bonus
-
-        # POPULARITY IMPACT
-        if hill.name == self.home_hill:
-            hill_bonus = max((self.popularity-5)/1.5, 0)
-            base += hill_bonus
-        else:
-            hill_bonus = 0
-        if hill.country == self.country_of_origin:
-            home_bonus = max(((self.popularity-5)/2), 0)
-            base += home_bonus
-        else:
-            home_bonus = 0
-
-        # JUMP SPEED SIMPLE
-        jump_bonus = round(random.randint(1, self.speed), 1)
-        jump_speed = round(hill.height/1.5 + jump_bonus, 1)
-
-        base += jump_bonus/2
-
-        # STYLE OMITTED UNTIL STYLE POINTS
-
-        # CONSISTENCY CALCULATION
-        consistency_bonus = round(
-            np.mean([self.consistency - 5, self.form]), 2)
-        base += consistency_bonus
-
-        # TAKE A RISK
-        risk_bonus = round((2*random.random()-1) * self.risk_taking, 2)
-        base += risk_bonus
-
-        # ADD FORM
-        base += self.form
-        estimation += self.form
-
-        # FATHER PRESENCE
-        father_present = random.random()
-        print(f"{white}They're looking around...")
-        line_break()
-        if father_present > 0.5:
-            print(f"* Their father is in the crowd")
-            line_break()
-            father_bonus = round((father_present-0.5) *
-                                 self.relationship_with_father, 2)
-        else:
-            print(f"* Looks like Dad didn't show up")
-            line_break()
-            father_bonus = round((father_present-0.5) *
-                                 (10 - self.relationship_with_father), 2)
-        base += father_bonus
-        estimation = round(estimation, 2)
-        jump_obj = Jump(base, hill.wind_variability,
-                        self.balance)
-        horizontal_adj_distance = jump_obj.calculate_horizontal_wind()
-
-        if breakdown:
-            dashed_line(n=50)
-            kv_print("Height Bonus", height_bonus, "m")
-            kv_print("Weight Bonus", weight_bonus, "m")
-            kv_print("Home Hill Bonus", hill_bonus, "m")
-            kv_print("Home Country Bonus", home_bonus, "m")
-            dashed_line(n=50)
-            kv_print("Jump Speed", jump_speed, "km/h")
-            kv_print("Jump Speed Bonus", jump_bonus/2, "m")
-            dashed_line(n=50)
-            kv_print("Consistency Bonus", consistency_bonus, "m")
-            kv_print("Risk Impact", risk_bonus, "m")
-            kv_print("Form Impact", self.form, "m")
-            kv_print("Father Presence", father_bonus, "m")
-            dashed_line(n=50)
-            kv_print("Wind Horizontal", jump_obj.wind_horizontal, "km/h")
-        kv_print("Expected distance", estimation, "m")
-        line_break()
 
         return round(horizontal_adj_distance, 2)
