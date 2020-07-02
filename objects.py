@@ -12,8 +12,8 @@ import numpy as np
 import random
 import country_naming as cn
 from name_generator import generate_word
-from formatting import dashed_line, kv_print, line_break
-from ansi_colours import light_green, white, yellow
+from console_formatting.formatting import dashed_line, kv_print, line_break
+from console_formatting.ansi_colours import light_green, white, yellow
 
 locale.setlocale(locale.LC_ALL, '')
 

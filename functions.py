@@ -11,8 +11,8 @@ from pandas import DataFrame
 import random
 from objects import Country, SkiJumper
 import time
-from formatting import kv_print, line_break
-from ansi_colours import light_purple, white, yellow
+from console_formatting.formatting import kv_print, line_break
+from console_formatting.ansi_colours import light_purple, white, yellow
 
 
 def extract_hills(countries):
