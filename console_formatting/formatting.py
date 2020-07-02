@@ -6,7 +6,25 @@ Created on Tue Jun 30 19:53:34 2020
 @author: ikelockett
 """
 
-from ansi_colours import light_cyan, light_green, light_red, white, yellow
+from console_formatting.ansi_colours import light_cyan, light_green, light_red, white, yellow
+
+
+def colour_map_1_to_10(x):
+    """Map the numbers 1-10 to a colour."""
+    colour_map = {
+        0: light_red,
+        1: light_red,
+        2: light_red,
+        3: yellow,
+        4: yellow,
+        5: white,
+        6: white,
+        7: white,
+        8: light_green,
+        9: light_green,
+        10: light_green
+        }
+    return colour_map[x]
 
 def dashed_line(print_out=True, n=50, colour=yellow):
     """Create a dashed line of a prespecified colour."""
@@ -17,7 +35,7 @@ def dashed_line(print_out=True, n=50, colour=yellow):
 
 
 def kv_print(k, v, suffix="", key_width=32, colour_map=False,
-             symbol=False):
+             symbol=False, return_text=False):
     """Print a kv pair cleanly and colourfully."""
     if isinstance(k, tuple):
         if len(k) != 2:
@@ -37,26 +55,13 @@ def kv_print(k, v, suffix="", key_width=32, colour_map=False,
         v_colour = white
     if symbol and isinstance(v, int):
         v = v * symbol
-    print(f"{k_colour}{(k+':'):{key_width}}{v_colour}{v}{suffix}")
+    print_str = f"{k_colour}{(k+':'):{key_width}}{v_colour}{v}{suffix}"
+    if return_text:
+        return print_str
+    else:
+        print(print_str)
 
 
 def line_break(n=1):
     """Print n blank lines."""
     print("" + (n-1) * "\n")
-
-def colour_map_1_to_10(x):
-    """Map the numbers 1-10 to a colour."""
-    colour_map = {
-        0: light_red,
-        1: light_red,
-        2: light_red,
-        3: yellow,
-        4: yellow,
-        5: white,
-        6: white,
-        7: white,
-        8: light_green,
-        9: light_green,
-        10: light_green
-        }
-    return colour_map[x]
