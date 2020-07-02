@@ -106,7 +106,7 @@ def start_hill(hill, skijumpers):
     tap_to_continue()
     hill.print_stats()
     attendance = hill.calculate_attendance(skijumpers)
-    kv_print("Attendance", f"{attendance:,} / {hill.capacity:,}")
+    kv_print("Attendance", f"{attendance:,}")
     if attendance == hill.capacity:
         line_break()
         print("It's a sellout!")
