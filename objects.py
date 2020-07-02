@@ -58,10 +58,12 @@ class Country():
         kv_print('Population', f"{self.population:,}")
         kv_print('Hill count', self.hill_count)
         line_break()
+        all_hills = ', '.join([hill.name for hill in self.hills])
         print("Hills:")
-        print(f"""{light_green}{', '.join([hill.name for hill in self.hills])}{white}""")
+        print(f"""{light_green}{all_hills}{white}""")
         line_break()
-        print(f"Our first hill will be {light_green}{self.hills[0].name}{white}")
+        hill_name = self.hills[0].name
+        print(f"Our first hill will be {light_green}{hill_name}{white}")
 
 
 class Hill():
@@ -125,7 +127,7 @@ class Hill():
 
 class Jump():
     """A jump is something that a skijumper does to a hill."""
-    
+
     def __init__(self, base_distance, wind_speed, balance):
         """Initialise variables."""
         self.base_distance = base_distance
@@ -238,7 +240,6 @@ class SkiJumper():
             self.consistency, self.relationship_with_father,
             self.form]), 4)
 
-
     def jump(self, hill, breakdown=False):
         """Make the skijumper jump on the selected hill."""
         dashed_line()
@@ -253,26 +254,21 @@ class SkiJumper():
         height_bonus = round(self.height / hill.height, 2)
         base += height_bonus
         estimation += height_bonus
-        # print(f"""Height bonus: {height_bonus}""")
 
         # WEIGHT BONUS
         weight_bonus = round(self.height / self.weight, 2)
         base += weight_bonus
         base += weight_bonus
-        # print(f"""Weight bonus: {weight_bonus}\n""")
 
         # POPULARITY IMPACT
         if hill.name == self.home_hill:
-            hill_bonus = max((self.popularity-5), 0)
+            hill_bonus = max((self.popularity-5)/1.5, 0)
             base += hill_bonus
-            # print(f"Home hill popularity bonus: {hill_bonus}")
         else:
             hill_bonus = 0
         if hill.country == self.country_of_origin:
-            # print(f"Popularity: {self.popularity}")
             home_bonus = max(((self.popularity-5)/2), 0)
             base += home_bonus
-            # print(f"Home popularity bonus: {home_bonus}\n")
         else:
             home_bonus = 0
 
@@ -282,32 +278,25 @@ class SkiJumper():
 
         base += jump_bonus/2
 
-        # print(f"Jump speed: {jump_speed}km/h")
-        # print(f"Jump speed bonus: {jump_bonus/2}\n")
-
-        # BALANCE OMITTED UNTIL WIND GENERATED
-
         # STYLE OMITTED UNTIL STYLE POINTS
 
         # CONSISTENCY CALCULATION
         consistency_bonus = round(
             np.mean([self.consistency - 5, self.form]), 2)
         base += consistency_bonus
-        # print(f"Consistency bonus: {consistency_bonus}")
 
         # TAKE A RISK
         risk_bonus = round((2*random.random()-1) * self.risk_taking, 2)
         base += risk_bonus
-        # print(f"Risk impact: {risk_bonus}")
 
         # ADD FORM
         base += self.form
         estimation += self.form
-        # print(f"Form impact: {self.form}\n")
 
         # FATHER PRESENCE
         father_present = random.random()
         print(f"{white}They're looking around...")
+        line_break()
         if father_present > 0.5:
             print(f"* Their father is in the crowd")
             line_break()
@@ -342,8 +331,5 @@ class SkiJumper():
             kv_print("Wind Horizontal", jump_obj.wind_horizontal, "km/h")
         kv_print("Expected distance", estimation, "m")
         line_break()
-
-        # jump_distance = random.gauss(base, base/24)
-        
 
         return round(horizontal_adj_distance, 2)
