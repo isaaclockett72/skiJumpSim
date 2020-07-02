@@ -72,6 +72,7 @@ def select_country(countries):
 def standard_round(hill, roster, skijumpers):
     """Run a standard round, in order of the roster."""
     results = {}
+    jump_results = []
     try:
         while True:
             try:
@@ -82,12 +83,14 @@ def standard_round(hill, roster, skijumpers):
             user_input = tap_to_continue({"b": "breakdown"})
 
             # JUMP
-            jump = Jump(current_skijumper, hill)
-            jump.initiate_jump()
+            current_jump = Jump(current_skijumper, hill)
+            current_jump.initiate_jump()
             if user_input == "b":
-                jump.print_jump_breakdown()
+                current_jump.print_jump_breakdown()
 
-            jump_distance = max(round(jump.jump_distance, 2), 0)
+            jump_distance = max(round(current_jump.jump_distance, 2), 0)
+            
+            jump_results.append(current_jump.get_series_data())
 
             # BASIC RESULTS
             if results:
@@ -105,7 +108,7 @@ def standard_round(hill, roster, skijumpers):
                 hill.hill_record = jump_distance
             tap_to_continue()
     except KeyboardInterrupt:
-        return results
+        return jump_results
 
 
 def start_hill(hill, skijumpers):

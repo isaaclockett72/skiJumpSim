@@ -9,6 +9,7 @@ Created on Tue Jun 23 22:03:03 2020
 import locale
 import math
 import numpy as np
+from pandas import Series
 import random
 import country_naming as cn
 from name_generator import generate_word
@@ -225,6 +226,11 @@ class Jump():
         self.jump_distance += self.weight_bonus
         self.estimate += self.weight_bonus
         pass
+
+    def get_series_data(self):
+        """Return the jump data as a Series."""
+        return Series(self.__dict__)
+
 
     def initiate_jump(self):
         """Initiate the jump."""
