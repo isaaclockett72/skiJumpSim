@@ -147,7 +147,7 @@ class Jump():
     def calculate_consistency_bonus(self):
         """Calculate consistency bonus."""
         self.consistency_bonus = round(
-            np.mean([self.skijumper.consistency - 5, self.skijumper.form]), 2)
+            np.mean([self.skijumper.consistency - 7.5, self.skijumper.form]), 2)
         self.jump_distance += self.consistency_bonus
 
     def calculate_father_bonus(self):
@@ -160,7 +160,7 @@ class Jump():
             line_break()
             self.father_bonus = round(
                 (self.father_present-0.5) *
-                self.skijumper.relationship_with_father, 2)
+                self.skijumper.relationship_with_father, 2)/5
         else:
             print(f"* Looks like Dad didn't show up")
             line_break()
@@ -172,7 +172,7 @@ class Jump():
 
     def calculate_form_bonus(self):
         """Calculate the form bonus."""
-        self.form_bonus = self.skijumper.form
+        self.form_bonus = self.skijumper.form * 1.5
         self.jump_distance += self.skijumper.form
         self.estimate += self.skijumper.form
 
@@ -185,7 +185,7 @@ class Jump():
 
     def calculate_horizontal_wind(self):
         """Calculate the horizontal wind's impact on the jump."""
-        self.wind_alpha = 2 / self.hill.wind_variability
+        self.wind_alpha = 2.5 / self.hill.wind_variability
         self.wind_horizontal = random.expovariate(self.wind_alpha)
         direction = -1 if random.random() < 0.5 else 1
         self.wind_horizontal *= direction
@@ -218,7 +218,7 @@ class Jump():
     def calculate_risk_bonus(self):
         """Calculate the risk bonus / penalty."""
         self.risk_bonus = round((2*random.random()-1) *
-                                self.skijumper.risk_taking, 2)
+                                self.skijumper.risk_taking, 2)/5
         self.jump_distance += self.risk_bonus
         pass
 
