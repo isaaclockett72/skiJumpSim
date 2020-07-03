@@ -19,5 +19,5 @@ def create_world(reset_countries=True, reset_skijumpers=True):
         pickle.dump(countries, open("countries.pkl", "wb"))
         pickle.dump(hills, open("hills.pkl", "wb"))
     if reset_skijumpers:
-        skijumpers = sk.generate_skijumpers(countries, n=100)
+        skijumpers = sk.generate_skijumpers(countries, n=250)
         pickle.dump(skijumpers, open("skijumpers.pkl", "wb"))
