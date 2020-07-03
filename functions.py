@@ -69,7 +69,7 @@ def select_country(countries):
     return tournament_country
 
 
-def standard_round(hill, roster, skijumpers):
+def standard_round(hill, roster, skijumpers, skip_continue_taps=False):
     """Run a standard round, in order of the roster."""
     results = {}
     jump_results = []
@@ -82,7 +82,8 @@ def standard_round(hill, roster, skijumpers):
             break
         print(f"Jumper {i}")
         current_skijumper.print_stats()
-        user_input = tap_to_continue()
+        if not skip_continue_taps:
+            tap_to_continue()
 
         # BASIC RESULTS
         if results:
@@ -100,10 +101,11 @@ def standard_round(hill, roster, skijumpers):
         current_jump.initiate_jump()
 
         jump_distance = max(round(current_jump.jump_distance, 2), 0)
-        
+
         jump_results.append(current_jump.get_series_data())
-        tap_to_continue()
-        time.sleep(0.5)
+        if not skip_continue_taps:
+            tap_to_continue()
+            time.sleep(0.5)
         dashed_line(colour=light_green)
         kv_print("Result", jump_distance, "m")
         dashed_line(colour=light_green)
@@ -122,10 +124,11 @@ def standard_round(hill, roster, skijumpers):
                                      "jump_distance",
                                      ]].head(5))
         results_df.to_pickle("results.pkl")
-        user_input = tap_to_continue({"b": "Breakdown Results"})
-        if user_input == "b":
-            current_jump.print_jump_breakdown()
-            tap_to_continue()
+        if not skip_continue_taps:
+            user_input = tap_to_continue({"b": "Breakdown Results"})
+            if user_input == "b":
+                current_jump.print_jump_breakdown()
+                tap_to_continue()
 
 
 def start_hill(hill, skijumpers):
