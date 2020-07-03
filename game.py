@@ -7,12 +7,13 @@ Created on Thu Jun 25 19:05:07 2020
 """
 
 import functions as sk
+import numpy as np
 import pickle
 import pandas as pd
 from pandas import DataFrame
 from create_world import create_world
 
-reset_all = False
+reset_all = True
 
 if reset_all:
     create_world()
@@ -24,6 +25,9 @@ skijumpers = pickle.load(open("skijumpers.pkl", "rb"))
 for skijumper in skijumpers.values():
     skijumper.set_form()
     skijumper.assign_personality()
+    
+# median_form = np.median([sj.form for sj in skijumpers.values()])
+# filtered_skijumpers = [sj for sj in skijumpers.values() if sj.form >= median_form]
 
 countries_df = sk.obj_list_to_df(countries)
 countries_df["skijumpers"] = [
@@ -39,7 +43,11 @@ hills_df["skijumpers"] = [
 
 
 # INIIATE SKIJUMPER ROSTER
-roster = skijumpers_df.sort_values("overall_score").index.to_list().__iter__()
+roster = skijumpers_df.sort_values("overall_score") \
+    .head(100) \
+    .index \
+    .to_list() \
+    .__iter__() \
 
 
 # PICK A COUNTRY
@@ -48,12 +56,13 @@ host_hills = (h for h in hills.values() if h.country == host_country.name)
 
 # GET HILL
 current_hill = sk.go_to_next_hill(host_hills)
+current_hill.set_horizontal_wind()
 sk.start_hill(current_hill, skijumpers.values())
 hill_results = {}
 
-user_input = sk.tap_to_continue({"s": "Skip future taps"})
+user_input = sk.tap_to_continue({"ss": "Skip future taps"})
 
 # INITIATE A JUMP
 sk.standard_round(current_hill, roster, skijumpers,
-                  skip_continue_taps=(user_input=="s"))
+                  skip_continue_taps=(user_input=="ss"))
 round_results_df = pd.read_pickle("results.pkl")
