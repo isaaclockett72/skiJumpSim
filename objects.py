@@ -14,7 +14,7 @@ import random
 import country_naming as cn
 from name_generator import generate_word
 from console_formatting.formatting import dashed_line, kv_print, line_break
-from console_formatting.ansi_colours import light_blue, light_green, white, yellow
+from console_formatting.ansi_colours import light_blue, light_green, light_white, yellow
 
 locale.setlocale(locale.LC_ALL, '')
 
@@ -62,10 +62,10 @@ class Country():
         line_break()
         all_hills = ', '.join([hill.name for hill in self.hills])
         print("Hills:")
-        print(f"""{light_green}{all_hills}{white}""")
+        print(f"""{light_green}{all_hills}{light_white}""")
         line_break()
         hill_name = self.hills[0].name
-        print(f"Our first hill will be {light_green}{hill_name}{white}")
+        print(f"Our first hill will be {light_green}{hill_name}{light_white}")
         pass
 
 
@@ -106,9 +106,11 @@ class Hill():
         dashed_line()
         line_break()
         kv_print("Hill Name", (self.name, light_green))
+        line_break()
         kv_print("Height", self.height, "m")
         kv_print("Calculation Line", self.calculation_line, "m")
         kv_print("Hill Record", self.hill_record, "m")
+        line_break()
         kv_print("Hill Capacity", f"{self.capacity:,}")
         pass
 
@@ -151,7 +153,7 @@ class Jump():
     def calculate_father_bonus(self):
         """Calculate the penalty / bonus for father presence."""
         self.father_present = random.random()
-        print(f"{white}They're looking around...")
+        print(f"{light_white}They're looking around...")
         line_break()
         if self.father_present > 0.5:
             print(f"* Their father is in the crowd")
@@ -183,7 +185,7 @@ class Jump():
 
     def calculate_horizontal_wind(self):
         """Calculate the horizontal wind's impact on the jump."""
-        self.wind_alpha = 1 / self.hill.wind_variability
+        self.wind_alpha = 2 / self.hill.wind_variability
         self.wind_horizontal = random.expovariate(self.wind_alpha)
         direction = -1 if random.random() < 0.5 else 1
         self.wind_horizontal *= direction
@@ -229,13 +231,14 @@ class Jump():
 
     def get_series_data(self):
         """Return the jump data as a Series."""
-        return Series(self.__dict__)
-
+        series_tmp = Series(self.__dict__)
+        series_tmp["home_country"] = series_tmp["skijumper"].country_of_origin
+        return series_tmp
 
     def initiate_jump(self):
         """Initiate the jump."""
         dashed_line()
-        print(f"{light_green}{self.skijumper.name}{white} is beginnning their jump...")
+        print(f"{light_green}{self.skijumper.name}{light_white} is beginnning their jump...")
         dashed_line()
         line_break()
         self.calculate_height_bonus()
@@ -247,6 +250,7 @@ class Jump():
         self.calculate_form_bonus()
         self.calculate_father_bonus()
         self.calculate_horizontal_wind()
+        self.jump_distance = max(round(self.jump_distance, 2), 0)
         kv_print("Expected distance", self.estimate, "m")
         pass
 
@@ -328,7 +332,7 @@ class SkiJumper():
         if self.risk_taking > 9:
             self.personality.append("Daredevil")
         if self.relationship_with_father < 3:
-            self.personality.append("Fragile")
+            self.personality.append("Paternally Fragile")
         if self.overall_score > 7:
             self.personality.append("Bookkeeper's Favourite")
         pass
@@ -342,7 +346,7 @@ class SkiJumper():
         kv_print("Country", (self.country_of_origin, light_green))
         kv_print("Home Hill", (self.home_hill, light_green))
         line_break()
-        print(f"{yellow}------------- STATS -------------{white}")
+        print(f"{yellow}{'-'*21} STATS {'-'*22}{light_white}")
         line_break()
         kv_print("Personality", (", ".join(self.personality), light_blue))
         kv_print("Height", round(self.height, 2), "cm")
@@ -356,7 +360,7 @@ class SkiJumper():
         kv_print("Relationship with father", self.relationship_with_father,
                  colour_map=True, symbol="◼︎")
         line_break()
-        print(f"{yellow}--------- OVERALL SCORE ---------{white}")
+        print(f"{yellow}{'-'*17} OVERALL SCORE {'-'*18}{light_white}")
         kv_print("Overall score", self.overall_score)
         pass
 
@@ -369,10 +373,3 @@ class SkiJumper():
             self.consistency, self.relationship_with_father,
             self.form]), 4)
         pass
-
-
-    def jump(self, hill, breakdown=False):
-        """Make the skijumper jump on the selected hill."""
-
-
-        return round(horizontal_adj_distance, 2)
