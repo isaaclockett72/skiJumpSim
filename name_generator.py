@@ -89,7 +89,7 @@ def create_string_unit(df, string_length=3, starting_string=""):
         if valid_second_selections.shape[0] > 0:
             second_selection_idx = random.choices(
                 valid_second_selections.index,
-                valid_second_selections["rating"].replace("", 5))[0]
+                2**valid_second_selections["rating"])[0]
             second_selection = Series(df.iloc[second_selection_idx])
             v, c = track_vc_counts(v, c, second_selection[1])
             if c > 3 and v > 2:
