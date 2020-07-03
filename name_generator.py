@@ -6,6 +6,7 @@ Created on Wed Jun 24 09:56:15 2020
 @author: ikelockett
 """
 
+import numpy as np
 import pandas as pd
 from pandas import DataFrame, Series
 import random
@@ -116,7 +117,7 @@ def generate_word(syllables=2, starting_string=""):
     pairs_df = pd.read_pickle("pairs.pkl")
     word = ""
     for i in range(1, syllables+1):
-        length = round(random.gauss(4, 1))
+        length = random.randint(2,5)
         word += create_string_unit(pairs_df, string_length=length,
                                    starting_string=starting_string)
         starting_string = ""
@@ -156,6 +157,50 @@ def test_pair(df_row, column="accepted"):
         except ValueError:
             pass
     return inp
+
+
+def generate_valid_words(n=5000):
+    """Generate n valid words (according to the algorithm.)"""
+    data = [generate_word() for i in range(n)]
+    df = DataFrame(data)
+    df.to_pickle("name_train.pkl")
+    return data
+
+
+def extract_fields(pickle="name_train.pkl"):
+    df = pd.read_pickle(pickle)
+    df = df.rename(columns={0: "word"})
+    for w, word in enumerate(df["word"].iloc[:500]):
+        print(w)
+        j = 0
+        for i in range(3,len(word)):
+            str_part = word[j:i]
+            df.loc[df["word"] == word, str_part] = 1
+            j += 1
+    df = df.fillna(0)
+    df["rating"] = np.nan
+    return df
+
+
+def rate_word(df):
+    """Find words which haven't been rated and rate them."""
+    while True:
+        words_to_rate = df[df["rating"]==False]
+        selected_word = random.choice(words_to_rate["word"].to_list())
+        rating = False
+        while rating not in range(-1,2):
+            print(selected_word)
+            rating = input("""
+How would you rate this as an English name?
+(-1: Invalid, 0: Pronounceable, 1: Good)
+""")
+            try:
+                rating = int(rating)
+            except ValueError:
+                pass
+        df.loc[df["word"] == selected_word, "rating"] = rating
+        df.to_pickle("name_train_rating.pkl")
+            
 
 
 if __name__ == "__main__":
