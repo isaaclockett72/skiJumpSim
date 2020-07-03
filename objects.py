@@ -257,20 +257,20 @@ class Jump():
     def print_jump_breakdown(self):
         """Print the jump breakdown results."""
         dashed_line(n=50)
-        kv_print("Height Bonus", self.height_bonus, "m")
-        kv_print("Weight Bonus", self.weight_bonus, "m")
-        kv_print("Home Hill Bonus", self.hill_bonus, "m")
-        kv_print("Home Country Bonus", self.home_bonus, "m")
+        kv_print("Height Bonus", self.height_bonus, "m", signed=True)
+        kv_print("Weight Bonus", self.weight_bonus, "m", signed=True)
+        kv_print("Home Hill Bonus", self.hill_bonus, "m", signed=True)
+        kv_print("Home Country Bonus", self.home_bonus, "m", signed=True)
         dashed_line(n=50)
-        kv_print("Jump Speed", self.jump_speed, "km/h")
-        kv_print("Jump Speed Bonus", self.jump_bonus/2, "m")
+        kv_print("Jump Speed", self.jump_speed, "km/h", signed=True)
+        kv_print("Jump Speed Bonus", self.jump_bonus/2, "m", signed=True)
         dashed_line(n=50)
-        kv_print("Consistency Bonus", self.consistency_bonus, "m")
-        kv_print("Risk Impact", self.risk_bonus, "m")
-        kv_print("Form Impact", self.form_bonus, "m")
-        kv_print("Father Presence", self.father_bonus, "m")
+        kv_print("Consistency Bonus", self.consistency_bonus, "m", signed=True)
+        kv_print("Risk Impact", self.risk_bonus, "m", signed=True)
+        kv_print("Form Impact", self.form_bonus, "m", signed=True)
+        kv_print("Father Presence", self.father_bonus, "m", signed=True)
         dashed_line(n=50)
-        kv_print("Wind Horizontal", self.wind_horizontal, "km/h")
+        kv_print("Wind Horizontal", self.wind_horizontal, "km/h", signed=True)
         pass
 
 
@@ -346,7 +346,8 @@ class SkiJumper():
         kv_print("Country", (self.country_of_origin, light_green))
         kv_print("Home Hill", (self.home_hill, light_green))
         line_break()
-        print(f"{yellow}{'-'*21} STATS {'-'*22}{light_white}")
+        # print(f"{yellow}{'-'*21} STATS {'-'*22}{light_white}")
+        print(f"{yellow}{' STATS ':-^50}{light_white}")
         line_break()
         kv_print("Personality", (", ".join(self.personality), light_blue))
         kv_print("Height", round(self.height, 2), "cm")
@@ -360,7 +361,7 @@ class SkiJumper():
         kv_print("Relationship with father", self.relationship_with_father,
                  colour_map=True, symbol="◼︎")
         line_break()
-        print(f"{yellow}{'-'*17} OVERALL SCORE {'-'*18}{light_white}")
+        print(f"{yellow}{' OVERALL SCORE ':-^50}{light_white}")
         kv_print("Overall score", self.overall_score)
         pass
 
