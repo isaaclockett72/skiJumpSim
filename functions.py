@@ -74,59 +74,58 @@ def standard_round(hill, roster, skijumpers):
     results = {}
     jump_results = []
     i = 0
-    try:
-        while True:
-            try:
-                current_skijumper = skijumpers[roster.__next__()]
-                i += 1
-            except StopIteration:
-                return results
-            print(f"Jumper {i}")
-            current_skijumper.print_stats()
-            user_input = tap_to_continue()
+    while True:
+        try:
+            current_skijumper = skijumpers[roster.__next__()]
+            i += 1
+        except StopIteration:
+            break
+        print(f"Jumper {i}")
+        current_skijumper.print_stats()
+        user_input = tap_to_continue()
 
-            # BASIC RESULTS
-            if results:
-                # kv_print("Current Record", max(results.values()), "m")
-                current_results = DataFrame(jump_results)
-                print(current_results.sort_values("jump_distance",
-                                                  ascending=False)[
-                                                      ["skijumper",
-                                                       "jump_distance"]].head(5))
-                line_break()
-            else:
-                kv_print("Calculation line", hill.calculation_line, "m")
-            # JUMP
-            current_jump = Jump(current_skijumper, hill)
-            current_jump.initiate_jump()
-
-            jump_distance = max(round(current_jump.jump_distance, 2), 0)
-            
-            jump_results.append(current_jump.get_series_data())
-            tap_to_continue()
-            time.sleep(0.5)
-            dashed_line(colour=light_green)
-            kv_print("Result", jump_distance, "m")
-            dashed_line(colour=light_green)
-            results[current_skijumper.name] = jump_distance
-            line_break()
-            dashed_line()
-            if jump_distance > hill.hill_record:
-                print("\nIt's a new hill record!\n")
-                line_break()
-                hill.hill_record = jump_distance
-            print(DataFrame(jump_results).sort_values("jump_distance",
+        # BASIC RESULTS
+        if results:
+            # kv_print("Current Record", max(results.values()), "m")
+            current_results = DataFrame(jump_results)
+            print(current_results.sort_values("jump_distance",
                                               ascending=False)[
                                                   ["skijumper",
-                                                   "home_country",
-                                                   "jump_distance",
-                                                   ]].head(5))
-            user_input = tap_to_continue({"b": "Breakdown Results"})
-            if user_input == "b":
-                current_jump.print_jump_breakdown()
-                tap_to_continue()
-    except KeyboardInterrupt:
-        return jump_results
+                                                   "jump_distance"]].head(5))
+            line_break()
+        else:
+            kv_print("Calculation line", hill.calculation_line, "m")
+        # JUMP
+        current_jump = Jump(current_skijumper, hill)
+        current_jump.initiate_jump()
+
+        jump_distance = max(round(current_jump.jump_distance, 2), 0)
+        
+        jump_results.append(current_jump.get_series_data())
+        tap_to_continue()
+        time.sleep(0.5)
+        dashed_line(colour=light_green)
+        kv_print("Result", jump_distance, "m")
+        dashed_line(colour=light_green)
+        results[current_skijumper.name] = jump_distance
+        line_break()
+        dashed_line()
+        if jump_distance > hill.hill_record:
+            print("\nIt's a new hill record!\n")
+            line_break()
+            hill.hill_record = jump_distance
+        results_df = DataFrame(jump_results)
+        print(results_df.sort_values("jump_distance",
+                                     ascending=False)[
+                                    ["skijumper",
+                                     "home_country",
+                                     "jump_distance",
+                                     ]].head(5))
+        results_df.to_pickle("results.pkl")
+        user_input = tap_to_continue({"b": "Breakdown Results"})
+        if user_input == "b":
+            current_jump.print_jump_breakdown()
+            tap_to_continue()
 
 
 def start_hill(hill, skijumpers):
