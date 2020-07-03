@@ -83,8 +83,8 @@ def standard_round(hill, roster, skijumpers, skip_continue_taps=False):
         print(f"Jumper {i}")
         current_skijumper.print_stats()
         if not skip_continue_taps:
-            tap_to_continue()
-
+            user_input = tap_to_continue({"ss": "Skip future taps"})
+            skip_continue_taps = user_input == "ss"
         # BASIC RESULTS
         if results:
             # kv_print("Current Record", max(results.values()), "m")
@@ -96,6 +96,7 @@ def standard_round(hill, roster, skijumpers, skip_continue_taps=False):
             line_break()
         else:
             kv_print("Calculation line", hill.calculation_line, "m")
+            line_break()
         # JUMP
         current_jump = Jump(current_skijumper, hill)
         current_jump.initiate_jump()
@@ -128,8 +129,10 @@ def standard_round(hill, roster, skijumpers, skip_continue_taps=False):
             user_input = tap_to_continue({"b": "Breakdown Results"})
             if user_input == "b":
                 current_jump.print_jump_breakdown()
-                tap_to_continue()
-
+                secondary_user_input = tap_to_continue({"ds": "Display Stats"})
+                if secondary_user_input == "ds":
+                    current_skijumper.print_stats()
+                    tap_to_continue()
 
 def start_hill(hill, skijumpers):
     """Announce and begin the selected hill."""
