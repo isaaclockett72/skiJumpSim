@@ -16,7 +16,7 @@ from name_generator import generate_word
 from console_formatting.formatting import dashed_line, kv_print, line_break
 from console_formatting.ansi_colours import light_blue, light_green, light_white, yellow
 
-locale.setlocale(locale.LC_ALL, '')
+# locale.setlocale(locale.LC_ALL, '')
 
 
 class Country():
@@ -107,6 +107,9 @@ class Hill():
         line_break()
         kv_print("Hill Name", (self.name, light_green))
         line_break()
+        kv_print("Hill Horizontal Wind", self.base_wind_horizontal, "km/h")
+        kv_print("Hill Wind Variability", self.wind_variability)
+        line_break()
         kv_print("Height", self.height, "m")
         kv_print("Calculation Line", self.calculation_line, "m")
         kv_print("Hill Record", self.hill_record, "m")
@@ -125,11 +128,15 @@ class Hill():
                 home_hill_count += 1
         base = (home_country_count * 2 +
                 home_hill_count * 3) * self.capacity/100
+        attendance = round(max(min(random.gauss(self.capacity/2 + base,
+                                                self.capacity/3),
+                                   self.capacity), 0))
+        return attendance
 
-        return round(max(min(
-                random.gauss(
-                    self.capacity/2 + base, self.capacity/3),
-                self.capacity), 0))
+    def set_horizontal_wind(self):
+        """Set the horizontal wind base for this session."""
+        self.base_wind_horizontal = round(random.gauss(0, 0.5), 2)
+        pass
 
 
 class Jump():
@@ -147,34 +154,37 @@ class Jump():
     def calculate_consistency_bonus(self):
         """Calculate consistency bonus."""
         self.consistency_bonus = round(
-            np.mean([self.skijumper.consistency - 7.5, self.skijumper.form]), 2)
+            np.mean([self.skijumper.consistency - 5, self.skijumper.form]), 2)
         self.jump_distance += self.consistency_bonus
+        pass
 
     def calculate_father_bonus(self):
         """Calculate the penalty / bonus for father presence."""
         self.father_present = random.random()
-        print(f"{light_white}They're looking around...")
+        # print(f"{light_white}They're looking around...")
         line_break()
         if self.father_present > 0.5:
-            print(f"* Their father is in the crowd")
+            # print(f"* Their father is in the crowd")
             line_break()
             self.father_bonus = round(
                 (self.father_present-0.5) *
                 self.skijumper.relationship_with_father, 2)/5
         else:
-            print(f"* Looks like Dad didn't show up")
+            # print(f"* Looks like Dad didn't show up")
             line_break()
             self.father_bonus = round(
                 (self.father_present - 0.5) *
                 (10 - self.skijumper.relationship_with_father), 2)
         self.jump_distance += self.father_bonus
         self.estimate = round(self.estimate, 2)
+        pass
 
     def calculate_form_bonus(self):
         """Calculate the form bonus."""
-        self.form_bonus = self.skijumper.form * 1.5
+        self.form_bonus = round(self.skijumper.form * 1.5, 2)
         self.jump_distance += self.skijumper.form
         self.estimate += self.skijumper.form
+        pass
 
     def calculate_height_bonus(self):
         """Calculate the height bonus."""
@@ -186,13 +196,15 @@ class Jump():
     def calculate_horizontal_wind(self):
         """Calculate the horizontal wind's impact on the jump."""
         self.wind_alpha = 2.5 / self.hill.wind_variability
-        self.wind_horizontal = random.expovariate(self.wind_alpha)
+        self.wind_horizontal = (
+            random.expovariate(self.wind_alpha) + self.hill.base_wind_horizontal)
         direction = -1 if random.random() < 0.5 else 1
         self.wind_horizontal *= direction
         self.wind_horizontal *= (self.skijumper.balance - 5)
         self.wind_horizontal = round(self.wind_horizontal, 2)
         self.angle = math.radians(self.wind_horizontal)
         self.jump_distance = self.jump_distance * math.cos(self.angle)
+        pass
 
     def calculate_jump_speed(self):
         """Calculate the jump speed and bonus."""
@@ -218,7 +230,7 @@ class Jump():
     def calculate_risk_bonus(self):
         """Calculate the risk bonus / penalty."""
         self.risk_bonus = round((2*random.random()-1) *
-                                self.skijumper.risk_taking, 2)/5
+                                self.skijumper.risk_taking/5, 2)
         self.jump_distance += self.risk_bonus
         pass
 
@@ -343,6 +355,7 @@ class SkiJumper():
         dashed_line()
         kv_print("Skijumper Name", (self.name, light_green))
         dashed_line()
+        line_break()
         kv_print("Country", (self.country_of_origin, light_green))
         kv_print("Home Hill", (self.home_hill, light_green))
         line_break()
@@ -368,7 +381,10 @@ class SkiJumper():
 
     def set_form(self):
         """Pick the form for the ski jumper and reset score."""
-        self.form = round(random.gauss(5, 2), 2)
+        if "form" in self.__dict__.keys():
+            self.form = round(random.gauss(self.form, 2), 2)
+        else:
+            self.form = round(random.gauss(5, 2), 2)
         self.overall_score = round(np.mean([
             self.popularity, self.speed, self.balance,
             self.consistency, self.relationship_with_father,
