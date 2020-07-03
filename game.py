@@ -8,9 +8,10 @@ Created on Thu Jun 25 19:05:07 2020
 
 import functions as sk
 import pickle
+from pandas import DataFrame
 from create_world import create_world
 
-reset_all = True
+reset_all = False
 
 if reset_all:
     create_world()
@@ -53,3 +54,6 @@ sk.tap_to_continue()
 
 # INITIATE A JUMP
 round_results = sk.standard_round(current_hill, roster, skijumpers)
+round_results_df = DataFrame(round_results)
+
+round_results_df.to_pickle("results.pkl")
