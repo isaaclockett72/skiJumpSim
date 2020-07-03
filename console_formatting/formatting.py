@@ -36,7 +36,7 @@ def dashed_line(print_out=True, n=50, colour=yellow):
 
 
 def kv_print(k, v, suffix="", key_width=32, colour_map=False,
-             symbol=False, return_text=False):
+             symbol=False, return_text=False, signed=False):
     """Print a kv pair cleanly and colourfully."""
     if isinstance(k, tuple):
         k_val, k_colour = k
@@ -53,7 +53,11 @@ def kv_print(k, v, suffix="", key_width=32, colour_map=False,
         v_colour = colour_map_1_to_10(v)
     if symbol and isinstance(v_val, int):
         v_val = v_val * symbol
-    print_str = f"{k_colour}{(k_val+':'):{key_width}}{v_colour}{v_val}{suffix}"
+    if signed:
+        v_colour = light_green if v_val >= 0 else light_red
+        print_str = f"{k_colour}{(k_val+':'):{key_width}}{v_colour}{v_val:+}{suffix}"
+    else:
+        print_str = f"{k_colour}{(k_val+':'):{key_width}}{v_colour}{v_val}{suffix}"
     if return_text:
         return print_str
     else:
