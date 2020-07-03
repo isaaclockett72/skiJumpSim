@@ -51,8 +51,9 @@ current_hill = sk.go_to_next_hill(host_hills)
 sk.start_hill(current_hill, skijumpers.values())
 hill_results = {}
 
-sk.tap_to_continue()
+user_input = sk.tap_to_continue({"s": "Skip future taps"})
 
 # INITIATE A JUMP
-sk.standard_round(current_hill, roster, skijumpers)
-round_results_df = pd.read_csv("results.pkl")
+sk.standard_round(current_hill, roster, skijumpers,
+                  skip_continue_taps=(user_input=="s"))
+round_results_df = pd.read_pickle("results.pkl")
