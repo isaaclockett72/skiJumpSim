@@ -11,9 +11,10 @@ import numpy as np
 import pickle
 import pandas as pd
 from pandas import DataFrame
+from objects import Tournament
 from create_world import create_world
 
-reset_all = True
+reset_all = False
 
 if reset_all:
     create_world()
@@ -43,26 +44,29 @@ hills_df["skijumpers"] = [
 
 
 # INIIATE SKIJUMPER ROSTER
-roster = skijumpers_df.sort_values("overall_score") \
-    .head(100) \
-    .index \
-    .to_list() \
-    .__iter__() \
+# roster = skijumpers_df.sort_values("overall_score") \
+#     .head(100) \
+#     .index \
+#     .to_list() \
+#     .__iter__() \
 
 
 # PICK A COUNTRY
 host_country = sk.select_country(countries)
 host_hills = (h for h in hills.values() if h.country == host_country.name)
 
+
 # GET HILL
 current_hill = sk.go_to_next_hill(host_hills)
 current_hill.set_horizontal_wind()
-sk.start_hill(current_hill, skijumpers.values())
-hill_results = {}
-
+current_hill.introduce_hill(skijumpers.values())
 user_input = sk.tap_to_continue({"ss": "Skip future taps"})
 
-# INITIATE A JUMP
-sk.standard_round(current_hill, roster, skijumpers,
-                  skip_continue_taps=(user_input=="ss"))
-round_results_df = pd.read_pickle("results.pkl")
+# INITIATE A TOURNAMENT
+tournament = Tournament()
+tournament.create_round(current_hill, skijumpers, round_type=1)
+tournament.start_round()
+
+# sk.standard_round(current_hill, roster, skijumpers,
+#                   skip_continue_taps=(user_input=="ss"))
+# round_results_df = pd.read_pickle(f"results/{current_hill.name}.pkl")

@@ -6,13 +6,15 @@ Created on Tue Jun 23 22:03:03 2020
 @author: ikelockett
 """
 
-import locale
+from difflib import SequenceMatcher
 import math
 import numpy as np
-from pandas import Series
+from pandas import DataFrame, Series
 import random
+import time
 import country_naming as cn
 from name_generator import generate_word
+import functions as sk
 from console_formatting.formatting import dashed_line, kv_print, line_break
 from console_formatting.ansi_colours import light_blue, light_green, light_white, yellow
 
@@ -41,6 +43,7 @@ class Country():
             self.name += generate_word(random.randint(1, 2)).title()
             self.name += random.choice(cn.country_suffixes)
         self.full_name += self.name
+        print("Generated Country: %s" % self.full_name)
         self.population = random.randint(1, 25000000)
         self.hill_count = random.choices(range(0, 10), range(10, 0, -1))[0]
         self.hills = [Hill(self.name) for x in range(self.hill_count)]
@@ -85,19 +88,55 @@ class Hill():
         self.capacity = random.randint(1, 100000)
         self.wind_variability = random.randint(1, 10)
         self.name = self.generate_name()
+        print("Generated Hill: %s" % self.name)
         pass
 
     def __repr__(self):
         """Use name for object representation."""
         return self.name
 
-    def generate_name(self):
+    def calculate_attendance(self, skijumpers):
+        """Calculate the attendance of the event."""
+        home_country_count = 0
+        home_hill_count = 0
+        for skijumper in skijumpers:
+            if skijumper.country_of_origin == self.country:
+                home_country_count += 1
+            if skijumper.home_hill == self.name:
+                home_hill_count += 1
+        base = (home_country_count * 2 +
+                home_hill_count * 3) * self.capacity/100
+        attendance = round(max(min(random.gauss(self.capacity/2 + base,
+                                                self.capacity/3),
+                                   self.capacity), 0))
+        return attendance
+
+    def generate_name(self, min_ratio=0.4):
         """Generate the name for the hill."""
-        starting_strings = [self.country[:2], ""]
-        starting_weights = [2, 3]
-        starting_string = random.choices(starting_strings, starting_weights)[0]
-        return generate_word(random.randint(2, 3),
-                             starting_string=starting_string).title()
+        i = 0
+        while True:
+            i += 1
+            if i > 100:
+                min_ratio -= 0.01
+                i = 0
+            attempt = generate_word(random.randint(1, 3)).title()
+            sequence = SequenceMatcher(None, self.country, attempt)
+            if sequence.ratio() >= min_ratio:
+                self.ratio = sequence.ratio()
+                return attempt
+            else:
+                i += 1
+
+    def introduce_hill(self, skijumpers):
+        """Announce and begin the selected hill."""
+        sk.tap_to_continue()
+        self.print_stats()
+        self.attendance = self.calculate_attendance(skijumpers)
+        kv_print("Attendance", f"{self.attendance:,}")
+        if self.attendance == self.capacity:
+            line_break()
+            print("It's a sellout!")
+        pass
 
     def print_stats(self):
         """Print stats for the hill."""
@@ -117,21 +156,7 @@ class Hill():
         kv_print("Hill Capacity", f"{self.capacity:,}")
         pass
 
-    def calculate_attendance(self, skijumpers):
-        """Calculate the attendance of the event."""
-        home_country_count = 0
-        home_hill_count = 0
-        for skijumper in skijumpers:
-            if skijumper.country_of_origin == self.country:
-                home_country_count += 1
-            if skijumper.home_hill == self.name:
-                home_hill_count += 1
-        base = (home_country_count * 2 +
-                home_hill_count * 3) * self.capacity/100
-        attendance = round(max(min(random.gauss(self.capacity/2 + base,
-                                                self.capacity/3),
-                                   self.capacity), 0))
-        return attendance
+        
 
     def set_horizontal_wind(self):
         """Set the horizontal wind base for this session."""
@@ -216,12 +241,14 @@ class Jump():
     def calculate_popularity_bonus(self):
         """Calculate popularity bonus."""
         if self.hill.name == self.skijumper.home_hill:
-            self.hill_bonus = max((self.skijumper.popularity-5)/1.5, 0)
+            self.hill_bonus = round(
+                max((self.skijumper.popularity-2)/1.5, 0), 2)
         else:
             self.hill_bonus = 0
         self.jump_distance += self.hill_bonus
         if self.hill.country == self.skijumper.country_of_origin:
-            self.home_bonus = max(((self.skijumper.popularity-5)/2), 0)
+            self.home_bonus = round(
+                max(((self.skijumper.popularity-2)/2), 0), 2)
         else:
             self.home_bonus = 0
         self.jump_distance += self.home_bonus
@@ -234,9 +261,18 @@ class Jump():
         self.jump_distance += self.risk_bonus
         pass
 
+    def calculate_points(self):
+        """Calculate the points awarded for the jump."""
+        pass
+
+    def calculate_style_bonus(self):
+        """Calculate the style bonus."""
+        pass
+
     def calculate_weight_bonus(self):
         """Calculate the weight bonus."""
-        self.weight_bonus = round(self.skijumper.height / self.skijumper.weight, 2)
+        self.weight_bonus = round(self.skijumper.height /
+                                  self.skijumper.weight, 2)
         self.jump_distance += self.weight_bonus
         self.estimate += self.weight_bonus
         pass
@@ -250,7 +286,8 @@ class Jump():
     def initiate_jump(self):
         """Initiate the jump."""
         dashed_line()
-        print(f"{light_green}{self.skijumper.name}{light_white} is beginnning their jump...")
+        skijumper_name = f"{light_green}{self.skijumper.name}{light_white}"
+        print(f"{skijumper_name} is beginnning their jump...")
         dashed_line()
         line_break()
         self.calculate_height_bonus()
@@ -286,6 +323,96 @@ class Jump():
         pass
 
 
+class Round():
+    """A round is when skijumpers are jumping on a hill."""
+
+    def __init__(self, hill, skijumpers, round_type=1):
+        self.hill = hill
+        self.skijumpers = skijumpers
+        self.round_type = round_type
+        self.results = {}
+
+    def get_roster(self):
+        """Create the roster for round 1."""
+        skijumpers_df = sk.obj_list_to_df(self.skijumpers)
+        if self.round_type == 1:
+            self.roster = skijumpers_df.sort_values("overall_score") \
+                .head(100) \
+                .index \
+                .to_list() \
+                .__iter__()
+
+    def start_jumping(self, skip_continue_taps=False, skip_ten=False):
+        """Start jumping."""
+        self.results = []
+        i = 0
+        while True:
+            if i % 10 == 0:
+                skip_ten = False
+            try:
+                current_skijumper = self.skijumpers[self.roster.__next__()]
+                i += 1
+            except StopIteration:
+                break
+            print(f"Jumper {i}")
+            current_skijumper.print_stats()
+            if not skip_continue_taps and not skip_ten:
+                user_input = sk.tap_to_continue(
+                    {"ss": "Skip future taps",
+                     "s10": "Skip to start of next 10"})
+                skip_continue_taps = user_input == "ss"
+                skip_ten = user_input == "s10"
+            # BASIC RESULTS
+            if self.results:
+                # kv_print("Current Record", max(results.values()), "m")
+                current_results = DataFrame(self.results)
+                print(current_results.sort_values("jump_distance",
+                                                  ascending=False)[
+                                                      ["skijumper",
+                                                       "jump_distance"]
+                                                      ].head(5))
+                line_break()
+            else:
+                kv_print("Calculation line", self.hill.calculation_line, "m")
+                line_break()
+            # JUMP
+            current_jump = Jump(current_skijumper, self.hill)
+            current_jump.initiate_jump()
+
+            jump_distance = max(round(current_jump.jump_distance, 2), 0)
+
+            self.results.append(current_jump.get_series_data())
+            if not skip_continue_taps and not skip_ten:
+                sk.tap_to_continue()
+                time.sleep(0.5)
+            dashed_line(colour=light_green)
+            kv_print("Result", jump_distance, "m")
+            dashed_line(colour=light_green)
+            line_break()
+            dashed_line()
+            if jump_distance > self.hill.hill_record:
+                print("\nIt's a new hill record!\n")
+                line_break()
+                self.hill.hill_record = jump_distance
+            results_df = DataFrame(self.results)
+            print(results_df.sort_values("jump_distance",
+                                         ascending=False)[
+                                        ["skijumper",
+                                         "home_country",
+                                         "jump_distance",
+                                         ]].head(5))
+            results_df.to_pickle(
+                f"results/{self.hill.name}_round_{self.round_type}.pkl")
+            if not skip_continue_taps and not skip_ten:
+                user_input = sk.tap_to_continue({"b": "Breakdown Results"})
+                if user_input == "b":
+                    current_jump.print_jump_breakdown()
+                    secondary_user_input = sk.tap_to_continue({"ds": "Display Stats"})
+                    if secondary_user_input == "ds":
+                        current_skijumper.print_stats()
+                        sk.tap_to_continue()
+
+
 class SkiJumper():
     """
     A ski jumper is a person who participates in ski jumps.
@@ -299,6 +426,7 @@ class SkiJumper():
         self.name = (
             generate_word(random.randint(1, 2)).title() + " " +
             generate_word(random.randint(1, 2)).title())
+        print("Generated Skijumper: %s" % self.name)
         try:
             self.home_hill = random.choice(country.hills).name
         except IndexError:
@@ -349,7 +477,6 @@ class SkiJumper():
             self.personality.append("Bookkeeper's Favourite")
         pass
 
-
     def print_stats(self):
         """Print out the stats for a ski jumper."""
         dashed_line()
@@ -378,7 +505,6 @@ class SkiJumper():
         kv_print("Overall score", self.overall_score)
         pass
 
-
     def set_form(self):
         """Pick the form for the ski jumper and reset score."""
         if "form" in self.__dict__.keys():
@@ -390,3 +516,19 @@ class SkiJumper():
             self.consistency, self.relationship_with_father,
             self.form]), 4)
         pass
+
+
+class Tournament():
+    """A tournament contains Rounds."""
+    
+    def __init__(self):
+        self.results = {}
+
+    def create_round(self, hill, skijumpers, round_type=1):
+        """Start a Round of skijumping."""
+        self.current_round = Round(hill, skijumpers, round_type=round_type)
+        self.results[round_type] = []
+        
+    def start_round(self):
+        self.current_round.get_roster()
+        self.current_round.start_jumping()
