@@ -156,8 +156,6 @@ class Hill():
         kv_print("Hill Capacity", f"{self.capacity:,}")
         pass
 
-        
-
     def set_horizontal_wind(self):
         """Set the horizontal wind base for this session."""
         self.base_wind_horizontal = round(random.gauss(0, 0.5), 2)
@@ -222,7 +220,8 @@ class Jump():
         """Calculate the horizontal wind's impact on the jump."""
         self.wind_alpha = 2.5 / self.hill.wind_variability
         self.wind_horizontal = (
-            random.expovariate(self.wind_alpha) + self.hill.base_wind_horizontal)
+            random.expovariate(self.wind_alpha) +
+            self.hill.base_wind_horizontal)
         direction = -1 if random.random() < 0.5 else 1
         self.wind_horizontal *= direction
         self.wind_horizontal *= (self.skijumper.balance - 5)
@@ -407,7 +406,9 @@ class Round():
                 user_input = sk.tap_to_continue({"b": "Breakdown Results"})
                 if user_input == "b":
                     current_jump.print_jump_breakdown()
-                    secondary_user_input = sk.tap_to_continue({"ds": "Display Stats"})
+                    secondary_user_input = sk.tap_to_continue(
+                        {"ds": "Display Stats"}
+                        )
                     if secondary_user_input == "ds":
                         current_skijumper.print_stats()
                         sk.tap_to_continue()
@@ -520,7 +521,7 @@ class SkiJumper():
 
 class Tournament():
     """A tournament contains Rounds."""
-    
+
     def __init__(self):
         self.results = {}
 
@@ -528,7 +529,8 @@ class Tournament():
         """Start a Round of skijumping."""
         self.current_round = Round(hill, skijumpers, round_type=round_type)
         self.results[round_type] = []
-        
+
     def start_round(self):
+        """Start the round."""
         self.current_round.get_roster()
         self.current_round.start_jumping()
