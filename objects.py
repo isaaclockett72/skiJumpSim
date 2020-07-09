@@ -15,7 +15,7 @@ import time
 import country_naming as cn
 from name_generator import generate_word
 import functions as sk
-from console_formatting.formatting import dashed_line, kv_print, line_break
+from console_formatting.formatting import dashed_line, kv_print, line_break, type_out
 from console_formatting.ansi_colours import light_blue, light_green, light_white, yellow
 
 # locale.setlocale(locale.LC_ALL, '')
@@ -43,7 +43,7 @@ class Country():
             self.name += generate_word(random.randint(1, 2)).title()
             self.name += random.choice(cn.country_suffixes)
         self.full_name += self.name
-        print("Generated Country: %s" % self.full_name)
+        type_out("Generated Country: %s" % self.full_name)
         self.population = random.randint(1, 25000000)
         self.hill_count = random.choices(range(0, 10), range(10, 0, -1))[0]
         self.hills = [Hill(self.name) for x in range(self.hill_count)]
@@ -56,7 +56,7 @@ class Country():
     def introduce_country(self):
         """Announce a country upon arrival."""
         dashed_line()
-        print(f"Welcome to {light_green}{self.name}")
+        type_out(f"Welcome to {light_green}{self.name}")
         dashed_line()
         line_break()
         kv_print('Official country name', (self.full_name, light_green))
@@ -64,11 +64,11 @@ class Country():
         kv_print('Hill count', self.hill_count)
         line_break()
         all_hills = ', '.join([hill.name for hill in self.hills])
-        print("Hills:")
-        print(f"""{light_green}{all_hills}{light_white}""")
+        type_out("Hills:")
+        type_out(f"""{light_green}{all_hills}{light_white}""")
         line_break()
         hill_name = self.hills[0].name
-        print(f"Our first hill will be {light_green}{hill_name}{light_white}")
+        type_out(f"Our first hill will be {light_green}{hill_name}{light_white}")
         pass
 
 
@@ -88,7 +88,7 @@ class Hill():
         self.capacity = random.randint(1, 100000)
         self.wind_variability = random.randint(1, 10)
         self.name = self.generate_name()
-        print("Generated Hill: %s" % self.name)
+        type_out("Generated Hill: %s" % self.name)
         pass
 
     def __repr__(self):
@@ -135,13 +135,13 @@ class Hill():
         kv_print("Attendance", f"{self.attendance:,}")
         if self.attendance == self.capacity:
             line_break()
-            print("It's a sellout!")
+            type_out("It's a sellout!")
         pass
 
     def print_stats(self):
         """Print stats for the hill."""
         dashed_line()
-        print(f"Welcome to {light_green}{self.name} Hill!")
+        type_out(f"Welcome to {light_green}{self.name} Hill!")
         dashed_line()
         line_break()
         kv_print("Hill Name", (self.name, light_green))
@@ -184,16 +184,16 @@ class Jump():
     def calculate_father_bonus(self):
         """Calculate the penalty / bonus for father presence."""
         self.father_present = random.random()
-        # print(f"{light_white}They're looking around...")
+        # type_out(f"{light_white}They're looking around...")
         line_break()
         if self.father_present > 0.5:
-            # print(f"* Their father is in the crowd")
+            # type_out(f"* Their father is in the crowd")
             line_break()
             self.father_bonus = round(
                 (self.father_present-0.5) *
                 self.skijumper.relationship_with_father, 2)/5
         else:
-            # print(f"* Looks like Dad didn't show up")
+            # type_out(f"* Looks like Dad didn't show up")
             line_break()
             self.father_bonus = round(
                 (self.father_present - 0.5) *
@@ -286,7 +286,7 @@ class Jump():
         """Initiate the jump."""
         dashed_line()
         skijumper_name = f"{light_green}{self.skijumper.name}{light_white}"
-        print(f"{skijumper_name} is beginnning their jump...")
+        type_out(f"{skijumper_name} is beginnning their jump...")
         dashed_line()
         line_break()
         self.calculate_height_bonus()
@@ -353,7 +353,7 @@ class Round():
                 i += 1
             except StopIteration:
                 break
-            print(f"Jumper {i}")
+            type_out(f"Jumper {i}")
             current_skijumper.print_stats()
             if not skip_continue_taps and not skip_ten:
                 user_input = sk.tap_to_continue(
@@ -365,7 +365,7 @@ class Round():
             if self.results:
                 # kv_print("Current Record", max(results.values()), "m")
                 current_results = DataFrame(self.results)
-                print(current_results.sort_values("jump_distance",
+                type_out(current_results.sort_values("jump_distance",
                                                   ascending=False)[
                                                       ["skijumper",
                                                        "jump_distance"]
@@ -390,11 +390,11 @@ class Round():
             line_break()
             dashed_line()
             if jump_distance > self.hill.hill_record:
-                print("\nIt's a new hill record!\n")
+                type_out("\nIt's a new hill record!\n")
                 line_break()
                 self.hill.hill_record = jump_distance
             results_df = DataFrame(self.results)
-            print(results_df.sort_values("jump_distance",
+            type_out(results_df.sort_values("jump_distance",
                                          ascending=False)[
                                         ["skijumper",
                                          "home_country",
@@ -427,7 +427,7 @@ class SkiJumper():
         self.name = (
             generate_word(random.randint(1, 2)).title() + " " +
             generate_word(random.randint(1, 2)).title())
-        print("Generated Skijumper: %s" % self.name)
+        type_out("Generated Skijumper: %s" % self.name)
         try:
             self.home_hill = random.choice(country.hills).name
         except IndexError:
@@ -487,8 +487,8 @@ class SkiJumper():
         kv_print("Country", (self.country_of_origin, light_green))
         kv_print("Home Hill", (self.home_hill, light_green))
         line_break()
-        # print(f"{yellow}{'-'*21} STATS {'-'*22}{light_white}")
-        print(f"{yellow}{' STATS ':-^50}{light_white}")
+        # type_out(f"{yellow}{'-'*21} STATS {'-'*22}{light_white}")
+        type_out(f"{yellow}{' STATS ':-^50}{light_white}")
         line_break()
         kv_print("Personality", (", ".join(self.personality), light_blue))
         kv_print("Height", round(self.height, 2), "cm")
@@ -502,7 +502,7 @@ class SkiJumper():
         kv_print("Relationship with father", self.relationship_with_father,
                  colour_map=True, symbol="◼︎")
         line_break()
-        print(f"{yellow}{' OVERALL SCORE ':-^50}{light_white}")
+        type_out(f"{yellow}{' OVERALL SCORE ':-^50}{light_white}")
         kv_print("Overall score", self.overall_score)
         pass
 

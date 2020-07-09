@@ -10,7 +10,7 @@ import pandas as pd
 from pandas import DataFrame
 import random
 from objects import Country, SkiJumper
-from console_formatting.formatting import kv_print, line_break
+from console_formatting.formatting import kv_print, line_break, type_out
 from console_formatting.ansi_colours import light_purple, light_white, yellow
 
 
@@ -42,7 +42,7 @@ def go_to_next_hill(host_hills):
     try:
         current_hill = host_hills.__next__()
     except StopIteration:
-        print("Tournament complete!")
+        type_out("Tournament complete!")
         current_hill = ""
     return current_hill
 
@@ -71,7 +71,7 @@ def select_country(countries):
 def tap_to_continue(options=None):
     """Pause until user enters a key."""
     if options:
-        print(f"\n\n{yellow}**Custom options:")
+        type_out(f"\n\n{yellow}**Custom options:")
         for option in options:
             kv_print((option, light_white), options[option])
     else:
